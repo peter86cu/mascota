@@ -1,6 +1,9 @@
 package com.apk.login.modelo;
 
 import java.io.Serializable;
+
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -26,12 +29,14 @@ public class CalendarioDay implements Serializable {
 	private static final long serialVersionUID = 1L;
 	
 	@Id
-	private int dayid;
+	private String dayid;
 	
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.PERSIST)
     @JoinColumn(name = "calendarioid") 
 	private CalendarioWork calendario;
+    @Column(name = "`check`")
 	private boolean check;
+    @Column(name = "`day`")
 	private String day;
 	
 
@@ -56,11 +61,11 @@ public class CalendarioDay implements Serializable {
 	}
 
 
-	public int getDayid() {
+	public String getDayid() {
 		return this.dayid;
 	}
 
-	public void setDayid(int dayid) {
+	public void setDayid(String dayid) {
 		this.dayid = dayid;
 	}
 

@@ -1,6 +1,10 @@
 package com.apk.login.modelo;
 
 import java.io.Serializable;
+import java.util.HashSet;
+import java.util.Set;
+
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -26,13 +30,14 @@ public class CalendarioWork implements Serializable {
 	private static final long serialVersionUID = 1L;
 	private String endtime;
 	@Id
-	private int id;
+	private String id;
 	private String starttime;
 	@JsonIgnore
     @ManyToOne
     @JoinColumn(name = "userid") 
-	private User userid;
+	private User user;
 
+	
 	public CalendarioWork() {
 	}
 
@@ -46,11 +51,11 @@ public class CalendarioWork implements Serializable {
 	}
 
 
-	public int getId() {
+	public String getId() {
 		return this.id;
 	}
 
-	public void setId(int id) {
+	public void setId(String id) {
 		this.id = id;
 	}
 
@@ -63,16 +68,18 @@ public class CalendarioWork implements Serializable {
 		this.starttime = starttime;
 	}
 
-
-	public User getUserid() {
-		return userid;
+	@JsonIgnore
+	public User getUser() {
+		return user;
 	}
 
 
-	public void setUserid(User userid) {
-		this.userid = userid;
+	public void setUser(User user) {
+		this.user = user;
 	}
 
+
+	
 
 
 }

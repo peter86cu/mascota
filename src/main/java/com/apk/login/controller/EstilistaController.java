@@ -50,15 +50,25 @@ public class EstilistaController {
 	        return activityService.getActivitiesByUserId(userId);
 	    }*/
    
-    
+	 @PostMapping(value="add-evento",produces=MediaType.APPLICATION_JSON_VALUE)
+	    @CrossOrigin(origins = "*", methods = { RequestMethod.GET, RequestMethod.POST })
+		@ResponseStatus(HttpStatus.CREATED)
+	    public ResponseEntity<String> addActividad(@RequestBody String data, HttpServletRequest request) {
+	    	String token = request.getHeader(ENCABEZADO);
+	    	return estilistaService.guardarActividad(data, token);
+	       
+	    }
+	 
+	 
     @GetMapping("activity-estilista")
     @CrossOrigin(origins = "*", methods = { RequestMethod.GET, RequestMethod.POST })
    	@ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<?> obtenerVacunas(@RequestParam("id") String id,HttpServletRequest request) {
+    public ResponseEntity<?> obtenerVacunas(@RequestParam("id") String id,@RequestParam("status") String status,HttpServletRequest request) {
     	String token = request.getHeader(ENCABEZADO);
-       return estilistaService.obtenerActividad(id,token);
+       return estilistaService.obtenerActividad(id,token,status);
     }
     
-   
+    
+ 
     
 }

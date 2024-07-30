@@ -58,6 +58,15 @@ public class ParametrosController {
        
     }
     
+    
+    @GetMapping("calendario-word-user")
+    @CrossOrigin(origins = "*", methods = { RequestMethod.GET, RequestMethod.POST })
+   	@ResponseStatus(HttpStatus.CREATED)
+    public ResponseEntity<?> obtenerCalendarioWork(@RequestParam("userid") String userid,HttpServletRequest request) {
+    	String token = request.getHeader(ENCABEZADO);
+       return parametrosService.obtenerCalendarioWord(userid,token);
+    }
+    
    
     
 }

@@ -13,13 +13,13 @@ import org.springframework.stereotype.Service;
 
 import com.apk.login.JwtTokenProvider;
 import com.apk.login.modelo.ActividadEstilista;
-import com.apk.login.modelo.ActividadEstilistaRepository;
 import com.apk.login.modelo.Mascota;
-import com.apk.login.modelo.MascotaPesoRepository;
-import com.apk.login.modelo.MascotaVacunaRepository;
-import com.apk.login.modelo.PerfilMascotaRepository;
 import com.apk.login.modelo.PesoMascota;
 import com.apk.login.modelo.Vacuna;
+import com.apk.login.repositorio.ActividadEstilistaRepository;
+import com.apk.login.repositorio.MascotaPesoRepository;
+import com.apk.login.repositorio.MascotaVacunaRepository;
+import com.apk.login.repositorio.PerfilMascotaRepository;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -46,7 +46,7 @@ public class EstilistaService {
 	 
 	 
     
-    /*public ResponseEntity<String> guardarActividad(String mascota, String token){
+  public ResponseEntity<String> guardarActividad(String mascota, String token){
     	try {
     		if (token != null) {
     			
@@ -63,9 +63,9 @@ public class EstilistaService {
 				} else {
 					// creamos el objeto con la información del usuario
 
-	    			Mascota perfil = new Gson().fromJson(mascota, Mascota.class);    		
-	        		if(perfilMascotaRepository.save(perfil)!=null) {
-	        		   return new ResponseEntity<String>(new Gson().toJson("Mascota agregada: "+ perfil.getNombre())   , HttpStatus.OK);	
+	    			ActividadEstilista perfil = new Gson().fromJson(mascota, ActividadEstilista.class);    		
+	        		if(actividadRepository.save(perfil)!=null) {
+	        		   return new ResponseEntity<String>(new Gson().toJson("Evento guardado.")   , HttpStatus.OK);	
 	        		}
 				}
     			
@@ -79,9 +79,9 @@ public class EstilistaService {
 		} catch (Exception e) {
 			return new ResponseEntity<String>(new Gson().toJson ("Ocurrio un error. Intente de nuevo")  , HttpStatus.NOT_ACCEPTABLE);	
 		}
-    }*/
+    }
     
-    public ResponseEntity<?> obtenerActividad(String estilistaId, String token){
+    public ResponseEntity<?> obtenerActividad(String estilistaId, String token, String status){
     	try {
     		if (token != null) {
     			
@@ -98,7 +98,7 @@ public class EstilistaService {
 				} else {
 					
 				    
-				    List<ActividadEstilista> actividad= actividadRepository.obtenerActividadesEstilista(estilistaId);
+				    List<ActividadEstilista> actividad= actividadRepository.obtenerActividadesEstilista(estilistaId, status);
 				    
 				    if(!actividad.isEmpty()) {
  	         		   return ResponseEntity.ok(actividad);	
@@ -120,6 +120,41 @@ public class EstilistaService {
 		}
     }
     
+    
+//    public ResponseEntity<String> actualizarActivity(int activityid, String status,String token){
+//    	try {
+//    		if (token != null) {
+//    			
+//    			// Se procesa el token y se recupera el usuario y los roles.
+//    			Claims claims = Jwts.parser()
+//                        .setSigningKey(jwt.key)
+//                        .parseClaimsJws(token.replace(PREFIJO_TOKEN, ""))
+//                        .getBody();
+//				//Claims claims = jwt.getUsernameFromToken(token);
+//				Date authorities = claims.getExpiration();
+//    			
+//				if (authorities.before(fecha)) {					
+//					return new ResponseEntity<String>("Expiró la sección", HttpStatus.BAD_REQUEST);
+//				} else {
+//					// creamos el objeto con la información del usuario
+//
+//	    			ActividadEstilista act = actividadRepository.;    		
+//	        		if(perfilMascotaRepository.save(perfil)!=null) {
+//	        		   return new ResponseEntity<String>(new Gson().toJson("Mascota agregada: "+ perfil.getNombre())   , HttpStatus.OK);	
+//	        		}
+//				}
+//    			
+//    		}else {
+//    			return new ResponseEntity<String>(new Gson().toJson ("Sin autorización"), HttpStatus.UNAUTHORIZED);
+//    		}
+//    		  
+//    		
+//    		
+//    		return new ResponseEntity<String>(new Gson().toJson ("Ocurrio un error. Intente de nuevo")  , HttpStatus.NOT_ACCEPTABLE);
+//		} catch (Exception e) {
+//			return new ResponseEntity<String>(new Gson().toJson ("Ocurrio un error. Intente de nuevo")  , HttpStatus.NOT_ACCEPTABLE);	
+//		}
+//    }
 
     
 }

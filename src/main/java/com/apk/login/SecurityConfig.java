@@ -60,6 +60,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	            .antMatchers("/add-vacuna-mascota").permitAll()
 	            .antMatchers("/activity-estilista").permitAll()
 	            .antMatchers("/workSchedule").permitAll()
+	            .antMatchers("/calendario-word-user").permitAll()
+	            .antMatchers("/add-evento").permitAll()
+	            .antMatchers("/add-businesses").permitAll()
+	            .antMatchers("/api/businesses/list-businesses").permitAll()
+	            .antMatchers("/api/businesses/list-activity-businesses").permitAll()
 	            .anyRequest().authenticated();
 	    }
 	    

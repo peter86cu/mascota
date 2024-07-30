@@ -39,9 +39,11 @@ public class ActividadEstilista implements Serializable {
     @JoinColumn(name = "mascotaid") 
 	private Mascota mascota;
 	private String status;
-	private String time;
+	private String startime;
+	private String endtime;
+	private double precio;
 	private String title;
-	@JsonIgnore
+	
     @ManyToOne
     @JoinColumn(name = "userid") 
     private User usuario;
@@ -77,7 +79,7 @@ public class ActividadEstilista implements Serializable {
 		this.fecha = fecha;
 	}
 
-	@JsonIgnore
+	
 	public User getUsuario() {
 		return usuario;
 	}
@@ -107,12 +109,36 @@ public class ActividadEstilista implements Serializable {
 	}
 
 
-	public String getTime() {
-		return this.time;
+	
+
+
+	public String getStartime() {
+		return startime;
 	}
 
-	public void setTime(String time) {
-		this.time = time;
+
+	public void setStartime(String startime) {
+		this.startime = startime;
+	}
+
+
+	public String getEndtime() {
+		return endtime;
+	}
+
+
+	public void setEndtime(String endtime) {
+		this.endtime = endtime;
+	}
+
+
+	public double getPrecio() {
+		return precio;
+	}
+
+
+	public void setPrecio(double precio) {
+		this.precio = precio;
 	}
 
 

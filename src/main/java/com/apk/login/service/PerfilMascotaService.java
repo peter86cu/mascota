@@ -13,11 +13,11 @@ import org.springframework.stereotype.Service;
 
 import com.apk.login.JwtTokenProvider;
 import com.apk.login.modelo.Mascota;
-import com.apk.login.modelo.MascotaPesoRepository;
-import com.apk.login.modelo.MascotaVacunaRepository;
-import com.apk.login.modelo.PerfilMascotaRepository;
 import com.apk.login.modelo.PesoMascota;
 import com.apk.login.modelo.Vacuna;
+import com.apk.login.repositorio.MascotaPesoRepository;
+import com.apk.login.repositorio.MascotaVacunaRepository;
+import com.apk.login.repositorio.PerfilMascotaRepository;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;

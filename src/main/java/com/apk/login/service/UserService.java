@@ -17,7 +17,7 @@ import org.springframework.stereotype.Service;
 
 import com.apk.login.JwtTokenProvider;
 import com.apk.login.modelo.User;
-import com.apk.login.modelo.UserRepository;
+import com.apk.login.repositorio.UserRepository;
 import com.apk.login.utils.SendMail;
 import com.ayalait.response.ResponseResultado;
 import com.ayalait.utils.Email;
@@ -51,7 +51,7 @@ public class UserService implements UserDetailsService{
 	 public User authenticate(String username, String password) throws AuthenticationException{
 	        
 		
-			 User user = userRepository.findByUsername(username);
+			 User user = userRepository.findByUsername(username).get();
 		        if (user != null && passwordEncoder.matches(password, user.getPassword())) {
 		            return user;
 		        }
@@ -110,7 +110,7 @@ public class UserService implements UserDetailsService{
 	 }
 
 	 public ResponseEntity<String> resetearPassword(String mail) {
-		 User user= userRepository.findByUsername(mail);
+		 User user= userRepository.findByUsername(mail).get();
 		 if(user!=null) {
 			 //genero token 
 			String token = jwtTokenProvider.createToken(mail);

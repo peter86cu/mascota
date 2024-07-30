@@ -42,6 +42,7 @@ public class User implements Serializable {
 	@OneToMany(mappedBy = "usuario", fetch = FetchType.LAZY)
 	private List<Mascota> mascotas;
 
+	
 	public User() {
 	}
 
@@ -135,4 +136,5 @@ public class User implements Serializable {
 		this.mascotas = mascotas;
 	}
 
+	
 }
