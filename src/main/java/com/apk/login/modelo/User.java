@@ -26,7 +26,8 @@ public class User implements Serializable {
 
 	private String plataforma;
 
-	private int rol;
+	@OneToMany(mappedBy = "userid", fetch = FetchType.LAZY)
+	private List<UserRoles> roles;
 
 	private int state;
 
@@ -88,12 +89,14 @@ public class User implements Serializable {
 		this.name = name;
 	}
 
-	public int getRol() {
-		return rol;
+	
+
+	public List<UserRoles> getRoles() {
+		return roles;
 	}
 
-	public void setRol(int rol) {
-		this.rol = rol;
+	public void setRoles(List<UserRoles> roles) {
+		this.roles = roles;
 	}
 
 	public int getState() {

@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 
 import com.apk.login.JwtTokenProvider;
 import com.apk.login.modelo.User;
+import com.apk.login.modelo.UserRoles;
 import com.apk.login.repositorio.UserRepository;
 import com.apk.login.utils.SendMail;
 import com.ayalait.response.ResponseResultado;
@@ -63,24 +64,42 @@ public class UserService implements UserDetailsService{
 		 
 		 try {
 			 User userTem= new Gson().fromJson(news, User.class);
-			 if(userTem.getPlataforma().equalsIgnoreCase("manual")){
-				 String pw1=new BCryptPasswordEncoder().encode(userTem.getPassword());
-					userTem.setPassword(pw1);
-			 }	
+			 User userExist = userRepository.findByUsername(userTem.getUsername()).get();
 			 
-			 User user= userRepository.save(userTem);
-			 if(user!= null) {
-				 //Crear tabla con las notificaciones para poder ser enviadas en otro momento si falla
-				 ResponseResultado response= envioConfirmacion(user);
-				 if(response.isStatus()) {
-					 return new ResponseEntity<String>(new Gson().toJson(response.getResultado()),HttpStatus.OK);
-				 }else {
-					  return new ResponseEntity<String>(new Gson().toJson(response.getError().getMenssage()),HttpStatus.NOT_FOUND);
-
-				 }
+			if( userExist.getRoles().stream()
+		      .filter(rol-> rol.getId() == userTem.getRoles().getFirst().getId())
+		      .findAny()
+		      .orElse(null)!=null) {
 				
-			 }				
-			  return new ResponseEntity<String>(new Gson().toJson("Ocurrio un error registrando al usuario."),HttpStatus.NOT_FOUND);
+				 
+				 if(userTem.getPlataforma().equalsIgnoreCase("manual")){
+					 String pw1=new BCryptPasswordEncoder().encode(userTem.getPassword());
+						userTem.setPassword(pw1);
+				 }	
+				 
+				 User user= userRepository.save(userTem);
+				 if(user!= null) {
+					 //Crear tabla con las notificaciones para poder ser enviadas en otro momento si falla
+					 ResponseResultado response= envioConfirmacion(user);
+					 if(response.isStatus()) {
+						 return new ResponseEntity<String>(new Gson().toJson(response.getResultado()),HttpStatus.OK);
+					 }else {
+						  return new ResponseEntity<String>(new Gson().toJson(response.getError().getMenssage()),HttpStatus.NOT_FOUND);
+
+					 }
+					
+				 }				
+				  return new ResponseEntity<String>(new Gson().toJson("Ocurrio un error registrando al usuario."),HttpStatus.NOT_FOUND);
+				
+			}else {
+				 return new ResponseEntity<String>(new Gson().toJson("Ya existe un usuario con ese rol registrado."),HttpStatus.OK);
+
+			}
+			 
+			 
+			 
+			 
+			
 		} catch(org.springframework.dao.DataIntegrityViolationException e) {
 			
 			  return new ResponseEntity<String>(new Gson().toJson("El correo/teléfono ya registrado."),HttpStatus.NOT_FOUND);
