@@ -67,11 +67,28 @@ public class UserService implements UserDetailsService{
 			 User userExist = userRepository.findByUsername(userTem.getUsername()).get();
 			 
 			if( userExist.getRoles().stream()
-		      .filter(rol-> rol.getId() == userTem.getRoles().getFirst().getId())
+		      .filter(rol-> rol.getId() == userTem.getRoles().get(0).getId())
 		      .findAny()
 		      .orElse(null)!=null) {
 				
+					
 				 
+				 User user= userRepository.save(userTem);
+				 if(user!= null) {
+					 //Crear tabla con las notificaciones para poder ser enviadas en otro momento si falla
+					 ResponseResultado response= envioConfirmacion(user);
+					 if(response.isStatus()) {
+						 return new ResponseEntity<String>(new Gson().toJson(response.getResultado()),HttpStatus.OK);
+					 }else {
+						  return new ResponseEntity<String>(new Gson().toJson(response.getError().getMenssage()),HttpStatus.NOT_FOUND);
+
+					 }
+					
+				 }				
+				  return new ResponseEntity<String>(new Gson().toJson("Ocurrio un error registrando al usuario."),HttpStatus.NOT_FOUND);
+				
+			}else {
+
 				 if(userTem.getPlataforma().equalsIgnoreCase("manual")){
 					 String pw1=new BCryptPasswordEncoder().encode(userTem.getPassword());
 						userTem.setPassword(pw1);
@@ -90,9 +107,6 @@ public class UserService implements UserDetailsService{
 					
 				 }				
 				  return new ResponseEntity<String>(new Gson().toJson("Ocurrio un error registrando al usuario."),HttpStatus.NOT_FOUND);
-				
-			}else {
-				 return new ResponseEntity<String>(new Gson().toJson("Ya existe un usuario con ese rol registrado."),HttpStatus.OK);
 
 			}
 			 
