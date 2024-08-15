@@ -1,6 +1,8 @@
 package com.apk.login.service;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import javax.ws.rs.core.Response;
 
@@ -16,6 +18,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.apk.login.JwtTokenProvider;
+import com.apk.login.modelo.Mascota;
+import com.apk.login.modelo.MascotaTemporal;
 import com.apk.login.modelo.User;
 import com.apk.login.modelo.UserRoles;
 import com.apk.login.repositorio.UserRepository;
@@ -37,6 +41,9 @@ public class UserService implements UserDetailsService{
     private UserRepository userRepository;
 	
 	@Autowired
+	PerfilMascotaService perfilMascota;
+		
+	@Autowired
     private JwtTokenProvider jwtTokenProvider;
 
 	
@@ -54,6 +61,7 @@ public class UserService implements UserDetailsService{
 		
 			 User user = userRepository.findByUsername(username).get();
 		        if (user != null && passwordEncoder.matches(password, user.getPassword())) {
+		        	      	
 		            return user;
 		        }
 		        return null;

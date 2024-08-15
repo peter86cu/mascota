@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import com.apk.login.JwtTokenProvider;
 import com.apk.login.modelo.Mascota;
+import com.apk.login.modelo.MascotaTemporal;
 import com.apk.login.modelo.PesoMascota;
 import com.apk.login.modelo.Vacuna;
 import com.apk.login.repositorio.MascotaPesoRepository;
@@ -50,7 +51,7 @@ public class PerfilMascotaService {
 	 
     
 
-    /*public ResponseEntity<String> obtenerPerfilPorIdDueno(String id, String token) {
+   public ResponseEntity<?> obtenerPesoMascota(String mascotaId, String token) {
     	
     	try {
     		if (token != null) {
@@ -66,9 +67,9 @@ public class PerfilMascotaService {
     			if (authorities.before(fecha)) {					
     				return new ResponseEntity<String>("Expiró la sección", HttpStatus.BAD_REQUEST);
     			}else {
-    				List<Mascota> perfilMascota = perfilMascotaRepository.findAllByUsuarioid(id);
+    				List<PesoMascota> perfilMascota = pesoMascotaRepository.findAllPesoMascotas(mascotaId);
     				if(!perfilMascota.isEmpty()) {
-    	         		   return new ResponseEntity<String>(new Gson().toJson(perfilMascota)   , HttpStatus.OK);	
+    	         		   return ResponseEntity.ok(perfilMascota);	
 
     				}else {
     	         		   return new ResponseEntity<String>(new Gson().toJson(perfilMascota )   , HttpStatus.NO_CONTENT);	
@@ -90,7 +91,7 @@ public class PerfilMascotaService {
     	
     	
     	
-     }*/
+     }
     
     public ResponseEntity<String> guardarMascota(String mascota, String token){
     	try {
@@ -109,9 +110,40 @@ public class PerfilMascotaService {
 				} else {
 					// creamos el objeto con la información del usuario
 
-	    			Mascota perfil = new Gson().fromJson(mascota, Mascota.class);    		
+	    			MascotaTemporal perfil1 = new Gson().fromJson(mascota, MascotaTemporal.class); 
+	    			Mascota perfil = new Mascota();
+	    			perfil.setNombre(perfil1.getNombre());
+	    			perfil.setRaza(perfil1.getRaza());
+	    			perfil.setColor(perfil1.getColor());
+	    			perfil.setComportamiento(perfil1.getComportamiento());
+	    			perfil.setDesparasitaciones(null);
+	    			perfil.setEdad(perfil1.getEdad());
+	    			perfil.setEspecie(perfil1.getEspecie());
+	    			perfil.setFechanacimiento(perfil1.getFechanacimiento());
+	    			perfil.setFotos(perfil1.getFotos());
+	    			perfil.setGenero(perfil1.getGenero());
+	    			perfil.setHistorial_medico(perfil1.getHistorial_medico());
+	    			perfil.setMascotaid(perfil1.getMascotaid());
+	    			perfil.setNecesidades_especiales(perfil1.getNecesidades_especiales());
+	    			perfil.setPersonalidad(perfil1.getPersonalidad());
+	    			perfil.setTamano(perfil1.getTamano());
+	    			perfil.setUsuario(perfil1.getUsuario());
+	    			perfil.setVacunas(null);
 	        		if(perfilMascotaRepository.save(perfil)!=null) {
-	        		   return new ResponseEntity<String>(new Gson().toJson("Mascota agregada: "+ perfil.getNombre())   , HttpStatus.OK);	
+	        			PesoMascota peso= new PesoMascota();
+	        			peso.setFecha(perfil1.getPesoMascota().get(0).getFecha());
+	        			peso.setMascotaid(perfil.getMascotaid());
+	        			peso.setPeso(perfil1.getPesoMascota().get(0).getPeso());
+	        			peso.setPesoid(0);
+	        			peso.setUm(perfil1.getPesoMascota().get(0).getUm());
+	        			if(pesoMascotaRepository.save(peso)!=null) {
+	 	        		   return new ResponseEntity<String>(new Gson().toJson("Mascota agregada: "+ perfil.getNombre())   , HttpStatus.OK);	
+
+	        			}else {
+	        				perfilMascotaRepository.delete(perfil);
+		 	        		return new ResponseEntity<String>(new Gson().toJson("Error salvando mascota"+ perfil.getNombre())   , HttpStatus.NOT_ACCEPTABLE);	
+
+	        			}
 	        		}
 				}
     			
@@ -145,12 +177,12 @@ public class PerfilMascotaService {
 					// creamos el objeto con la información del usuario
 					JsonParser jsonParser = new JsonParser();
 				    JsonObject payment_id = (JsonObject) jsonParser.parse(datos);
-				    int id= payment_id.get("mascotaid").getAsInt();
+				    String id= payment_id.get("mascotaid").getAsString();
 				    
 				    Mascota mGuarda= perfilMascotaRepository.findById(id).get();
 				    
 	    			PesoMascota perfil = new Gson().fromJson(datos, PesoMascota.class); 
-	    			perfil.setMascota(mGuarda);
+	    			perfil.setMascotaid(mGuarda.getMascotaid());
 	    			
 	        		if(pesoMascotaRepository.save(perfil)!=null) {
 	        		   return new ResponseEntity<String>(new Gson().toJson("Peso de la mascota agregada.")   , HttpStatus.OK);	
@@ -188,7 +220,7 @@ public class PerfilMascotaService {
 					// creamos el objeto con la información del usuario
 					JsonParser jsonParser = new JsonParser();
 				    JsonObject payment_id = (JsonObject) jsonParser.parse(datos);
-				    int id= payment_id.get("mascotaid").getAsInt();
+				    String id= payment_id.get("mascotaid").getAsString();
 				    
 				    Mascota mGuarda= perfilMascotaRepository.findById(id).get();
 				    
@@ -211,5 +243,37 @@ public class PerfilMascotaService {
 			return new ResponseEntity<String>(new Gson().toJson ("Ocurrio un error. Intente de nuevo")  , HttpStatus.NOT_ACCEPTABLE);	
 		}
     }
+    
+    
+    /*public MascotaTemporal obtenerMascotaApp(Mascota mascota) {
+    	MascotaTemporal response= new MascotaTemporal();
+    	
+    	
+    	Mascota mGuarda= perfilMascotaRepository.findById(mascota.getMascotaid()).get();
+    	if(mGuarda!=null) {
+    		response.setNombre(mGuarda.getNombre());
+    		response.setRaza(mGuarda.getRaza());
+    		response.setColor(mGuarda.getColor());
+    		response.setComportamiento(mGuarda.getComportamiento());
+    		response.setDesparasitaciones(mGuarda.getDesparasitaciones());
+    		response.setEdad(mGuarda.getEdad());
+    		response.setEspecie(mGuarda.getEspecie());
+    		response.setFechanacimiento(mGuarda.getFechanacimiento());
+    		response.setFotos(mGuarda.getFotos());
+    		response.setGenero(mGuarda.getGenero());
+    		response.setHistorial_medico(mGuarda.getHistorial_medico());
+    		response.setMascotaid(mGuarda.getMascotaid());
+    		response.setNecesidades_especiales(mGuarda.getNecesidades_especiales());
+    		response.setPersonalidad(mGuarda.getPersonalidad());
+    		response.setTamano(mGuarda.getTamano());
+    		response.setUsuario(mGuarda.getUsuario());
+    		response.setVacunas(mGuarda.getVacunas());
+    		
+    		List<PesoMascota> peso= pesoMascotaRepository.findAllPesoMascotas(mGuarda.getMascotaid());
+    		response.setPesoMascota(peso);
+    	}
+    	
+    	return response;
+    }*/
     
 }

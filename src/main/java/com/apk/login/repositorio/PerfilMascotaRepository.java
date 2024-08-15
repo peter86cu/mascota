@@ -10,7 +10,7 @@ import com.apk.login.modelo.Mascota;
 
 
 @Repository
-public interface PerfilMascotaRepository extends JpaRepository<Mascota, Integer> {
+public interface PerfilMascotaRepository extends JpaRepository<Mascota, String> {
 
     //List<Mascota> findAllByUsuarioid(String idDueno);
 

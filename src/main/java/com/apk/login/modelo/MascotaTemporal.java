@@ -21,14 +21,13 @@ import javax.persistence.Table;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-@Entity
-@Table(name = "mascota")
-public class Mascota implements Serializable{
+
+public class MascotaTemporal implements Serializable{
 	
 	private static final long serialVersionUID = 1L;
 
 	@Id
-   // @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private String mascotaid;
     private String nombre;
     private String especie;
@@ -54,11 +53,11 @@ public class Mascota implements Serializable{
     @OneToMany(mappedBy = "mascota", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Desparasitacion> desparasitaciones;
     
-//    @OneToMany(mappedBy = "mascota", cascade = CascadeType.ALL)
-//    private List<PesoMascota> pesoMascota= new ArrayList<>();
+    @OneToMany(mappedBy = "mascota", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<PesoMascotaTemporal> pesoMascota= new ArrayList<>();
 
     // Constructor vacío
-    public Mascota() {
+    public MascotaTemporal() {
     }
 
 	
@@ -123,7 +122,14 @@ public class Mascota implements Serializable{
 		this.color = color;
 	}
 
-	
+	public String getTamañno() {
+		return tamano;
+	}
+
+	public void setTamano(String tamano) {
+		this.tamano = tamano;
+	}
+
 	
 
 	public String getPersonalidad() {
@@ -198,20 +204,14 @@ public class Mascota implements Serializable{
 	}
 
 
-//	public List<PesoMascota> getPesoMascota() {
-//		return pesoMascota;
-//	}
-//
-//
-//
-//	public void setPesoMascota(List<PesoMascota> pesoMascota) {
-//		this.pesoMascota = pesoMascota;
-//	}
+	public List<PesoMascotaTemporal> getPesoMascota() {
+		return pesoMascota;
+	}
 
 
 
-	public void setTamano(String tamano) {
-		this.tamano = tamano;
+	public void setPesoMascota(List<PesoMascotaTemporal> pesoMascota) {
+		this.pesoMascota = pesoMascota;
 	}
 
 

@@ -45,7 +45,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	        http.csrf().disable()
 	            .authorizeRequests()
 	            .antMatchers("/login").permitAll()
-	            .antMatchers("/perfil-mascota").permitAll()
+	            .antMatchers("/peso-mascota").permitAll()
 	            .antMatchers("/add-mascota").permitAll()
 	            .antMatchers("/create-user").permitAll()
 	            .antMatchers("/validar-google").permitAll()

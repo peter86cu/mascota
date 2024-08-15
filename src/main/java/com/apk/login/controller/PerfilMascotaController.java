@@ -32,11 +32,11 @@ public class PerfilMascotaController {
 	 PerfilMascotaService perfilMascotaService;
    
 
-   /* @GetMapping("perfil-mascota")
-    public ResponseEntity<String> obtenerPerfilPorId(@RequestParam("id") String id,HttpServletRequest request) {
+    @GetMapping("peso-mascota")
+    public ResponseEntity<?> obtenerPerfilPorId(@RequestParam("id") String id,HttpServletRequest request) {
     	String token = request.getHeader(ENCABEZADO);
-       return perfilMascotaService.obtenerPerfilPorIdDueno(id, token);
-    }*/
+       return perfilMascotaService.obtenerPesoMascota(id, token);
+    }
     
    
     @PostMapping(value="add-mascota",produces=MediaType.APPLICATION_JSON_VALUE)

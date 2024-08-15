@@ -19,7 +19,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 @Table(name="pesos_mascota")
-public class PesoMascota implements Serializable  {
+public class PesoMascotaTemporal implements Serializable  {
 
 	private static final long serialVersionUID = 1L;
 
@@ -41,7 +41,7 @@ public class PesoMascota implements Serializable  {
 	
 	private String um;
 
-	public PesoMascota() {
+	public PesoMascotaTemporal() {
 	}
 
 	public int getPesoid() {

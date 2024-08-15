@@ -1,8 +1,10 @@
 package com.apk.login.controller;
 
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -30,6 +32,7 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import com.apk.login.JwtTokenProvider;
 import com.apk.login.modelo.AuthRequest;
 import com.apk.login.modelo.AuthResponse;
+import com.apk.login.modelo.Mascota;
 import com.apk.login.modelo.User;
 import com.apk.login.service.UserService;
 import com.google.gson.Gson;
@@ -60,6 +63,12 @@ public class AuthController {
 						return new ResponseEntity<String>(new Gson().toJson("Debe confirmar el correo para poder acceder."), HttpStatus.NOT_FOUND);
 
 		        	String token = jwtTokenProvider.getToken(autentication);
+		        	List<Mascota> lstMacotas= new ArrayList<Mascota>();
+		        	for(Mascota mascota : user.getMascotas()) {
+		        		mascota.setUsuario(user);
+		        		lstMacotas.add(mascota);
+		        	}
+		        	user.setMascotas(lstMacotas);
 		        	AuthResponse response= new AuthResponse(user,token);
 		            return ResponseEntity.ok(response);
 
