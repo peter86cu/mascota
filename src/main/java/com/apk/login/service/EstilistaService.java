@@ -1,6 +1,8 @@
 package com.apk.login.service;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.persistence.Entity;
@@ -20,6 +22,8 @@ import com.apk.login.repositorio.ActividadEstilistaRepository;
 import com.apk.login.repositorio.MascotaPesoRepository;
 import com.apk.login.repositorio.MascotaVacunaRepository;
 import com.apk.login.repositorio.PerfilMascotaRepository;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -63,7 +67,10 @@ public class EstilistaService {
 				} else {
 					// creamos el objeto con la información del usuario
 
-	    			ActividadEstilista perfil = new Gson().fromJson(mascota, ActividadEstilista.class);    		
+	    			//ActividadEstilista perfil = new Gson().fromJson(mascota, ActividadEstilista.class);  
+	    			ObjectMapper objectMapper = new ObjectMapper();
+	    			ActividadEstilista perfil = objectMapper.readValue(mascota, ActividadEstilista.class);
+
 	        		if(actividadRepository.save(perfil)!=null) {
 	        		   return new ResponseEntity<String>(new Gson().toJson("Evento guardado.")   , HttpStatus.OK);	
 	        		}
@@ -80,6 +87,55 @@ public class EstilistaService {
 			return new ResponseEntity<String>(new Gson().toJson ("Ocurrio un error. Intente de nuevo")  , HttpStatus.NOT_ACCEPTABLE);	
 		}
     }
+  
+  
+  public ResponseEntity<String> guardarActividadAll(String mascota, String token){
+  	try {
+  		if (token != null) {
+  			
+  			// Se procesa el token y se recupera el usuario y los roles.
+  			Claims claims = Jwts.parser()
+                      .setSigningKey(jwt.key)
+                      .parseClaimsJws(token.replace(PREFIJO_TOKEN, ""))
+                      .getBody();
+				//Claims claims = jwt.getUsernameFromToken(token);
+				Date authorities = claims.getExpiration();
+  			
+				if (authorities.before(fecha)) {					
+					return new ResponseEntity<String>("Expiró la sección", HttpStatus.BAD_REQUEST);
+				} else {
+					// creamos el objeto con la información del usuario
+					ObjectMapper objectMapper = new ObjectMapper();
+					List<ActividadEstilista> actividades = objectMapper.readValue(mascota, new TypeReference<List<ActividadEstilista>>() {});
+					boolean status=false;
+					for (ActividadEstilista actividadEstilista : actividades) {
+						if(actividadRepository.save(actividadEstilista)!=null) {
+							status=true;
+							
+			        	}
+					}
+					
+					if(status)
+		        		   return new ResponseEntity<String>(new Gson().toJson("Evento guardado.")   , HttpStatus.OK);	
+	        	return new ResponseEntity<String>(new Gson().toJson("Ocurrio un error registrando las actividades. Intente de nuevo")   , HttpStatus.NOT_ACCEPTABLE);	
+
+					
+	    			//List<ActividadEstilista> perfil = new Gson().fromJson(mascota, List.class);    		
+	        		
+				}
+  			
+  		}else {
+  			return new ResponseEntity<String>(new Gson().toJson ("Sin autorización"), HttpStatus.UNAUTHORIZED);
+  		}
+  		  
+  		
+  		
+  		//return new ResponseEntity<String>(new Gson().toJson ("Ocurrio un error. Intente de nuevo")  , HttpStatus.NOT_ACCEPTABLE);
+		} catch (Exception e) {
+			return new ResponseEntity<String>(new Gson().toJson ("Ocurrio un error. Intente de nuevo")  , HttpStatus.NOT_ACCEPTABLE);	
+		}
+  }
+  
     
     public ResponseEntity<?> obtenerActividad(String estilistaId, String token, String status){
     	try {

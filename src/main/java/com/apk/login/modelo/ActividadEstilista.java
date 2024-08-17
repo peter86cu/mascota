@@ -23,13 +23,12 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
  */
 @Entity
 @Table(name="actividad_estilista")
-@NamedQuery(name="ActividadEstilista.findAll", query="SELECT a FROM ActividadEstilista a")
 public class ActividadEstilista implements Serializable {
 	
 	private static final long serialVersionUID = 1L;
 	
 	@Id	
-	private int actividadid;
+	private String actividadid;
 	private String description;
 	
     @Temporal(TemporalType.DATE)
@@ -52,11 +51,11 @@ public class ActividadEstilista implements Serializable {
 	}
 
 
-	public int getActividadid() {
+	public String getActividadid() {
 		return this.actividadid;
 	}
 
-	public void setActividadid(int actividadid) {
+	public void setActividadid(String actividadid) {
 		this.actividadid = actividadid;
 	}
 

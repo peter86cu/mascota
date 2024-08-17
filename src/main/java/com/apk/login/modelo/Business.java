@@ -1,13 +1,16 @@
 package com.apk.login.modelo;
 
 import java.sql.Timestamp;
+import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
@@ -33,6 +36,8 @@ public class Business {
     @JoinColumn(name = "userid") 
     private User usuario;
     
+    @OneToMany(mappedBy = "negocio", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<BusinessActivity> activity;
       
 	public String getId() {
 		return id;
@@ -88,6 +93,7 @@ public class Business {
 	public void setLatitud(String latitud) {
 		this.latitud = latitud;
 	}
+    @JsonIgnore
 	public User getUsuario() {
 		return usuario;
 	}
@@ -100,5 +106,13 @@ public class Business {
 	public void setRut(String rut) {
 		this.rut = rut;
 	}
+	public List<BusinessActivity> getActivity() {
+		return activity;
+	}
+	public void setActivity(List<BusinessActivity> activity) {
+		this.activity = activity;
+	}
+	
+	
 	
 }

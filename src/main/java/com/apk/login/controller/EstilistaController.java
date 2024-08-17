@@ -33,6 +33,8 @@ public class EstilistaController {
 
 	public static final String ENCABEZADO = "Authorization";
 	
+	public static final String ADD = "All";
+	
 	 @Autowired
 	 EstilistaService estilistaService;
    
@@ -55,7 +57,10 @@ public class EstilistaController {
 		@ResponseStatus(HttpStatus.CREATED)
 	    public ResponseEntity<String> addActividad(@RequestBody String data, HttpServletRequest request) {
 	    	String token = request.getHeader(ENCABEZADO);
+	    	boolean all = Boolean.parseBoolean(request.getHeader(ADD)) ;
+	    	if(!all)
 	    	return estilistaService.guardarActividad(data, token);
+	    	return estilistaService.guardarActividadAll(data, token);
 	       
 	    }
 	 

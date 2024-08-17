@@ -13,7 +13,7 @@ import com.apk.login.modelo.ActividadEstilista;
 
 
 @Repository
-public interface ActividadEstilistaRepository extends JpaRepository<ActividadEstilista, Integer> {
+public interface ActividadEstilistaRepository extends JpaRepository<ActividadEstilista, String> {
 
    // List<ActividadEstilista> findAllByUsuario(String id);
     
