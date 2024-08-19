@@ -6,12 +6,14 @@ import java.util.List;
 
 import javax.persistence.*;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
+
 
 
 @Entity
 @Table(name = "user")
 @NamedQuery(name = "User.findAll", query = "SELECT u FROM User u")
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class User implements Serializable {
 	private static final long serialVersionUID = 1L;
 
@@ -32,6 +34,8 @@ public class User implements Serializable {
 	private int state;
 
 	private String username;
+	
+	private String photo;
 
     @Temporal(TemporalType.DATE)
 	private Date createdate;
@@ -137,6 +141,14 @@ public class User implements Serializable {
 
 	public void setMascotas(List<Mascota> mascotas) {
 		this.mascotas = mascotas;
+	}
+
+	public String getPhoto() {
+		return photo;
+	}
+
+	public void setPhoto(String photo) {
+		this.photo = photo;
 	}
 
 	

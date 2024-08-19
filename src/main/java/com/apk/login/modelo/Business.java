@@ -9,15 +9,17 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
+
+import com.fasterxml.jackson.annotation.JsonInclude;
 
 import net.minidev.json.annotate.JsonIgnore;
 
 @Entity
 @Table(name="businesses")
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class Business {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -38,6 +40,11 @@ public class Business {
     
     @OneToMany(mappedBy = "negocio", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<BusinessActivity> activity;
+    
+    private int reviewCount;
+    
+//    @OneToMany(mappedBy = "business", cascade = CascadeType.ALL, orphanRemoval = true)
+//    private List<Comment> comment;
       
 	public String getId() {
 		return id;
@@ -112,7 +119,19 @@ public class Business {
 	public void setActivity(List<BusinessActivity> activity) {
 		this.activity = activity;
 	}
-	
+//	public List<Comment> getComment() {
+//		return comment;
+//	}
+//	public void setComment(List<Comment> comment) {
+//		this.comment = comment;
+//	}
+//	
+	public int getReviewCount() {
+		return reviewCount;
+	}
+	public void setReviewCount(int reviewCount) {
+		this.reviewCount = reviewCount;
+	}
 	
 	
 }
