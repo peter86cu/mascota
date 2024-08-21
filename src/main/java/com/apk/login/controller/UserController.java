@@ -54,6 +54,11 @@ public class UserController {
 		return userService.confirmarPedido(id);
 	}
     
+    @GetMapping(value="validar-username-phone")
+	public ResponseEntity<String> validarUserNamePhone(@RequestParam("username") String username, @RequestParam("phone") String phone) {		
+		return userService.validarUserNamePhone(username, phone);
+	}
+    
     @GetMapping(value="formulario-reseteo-password")
 	public String formularioReseteo(@RequestParam("id") String id, @RequestParam("token") String token) {		
 		return userService.formularioReseteoPassword(id,token);

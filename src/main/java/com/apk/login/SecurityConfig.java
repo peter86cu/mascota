@@ -51,6 +51,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	            .antMatchers("/validar-google").permitAll()
 	            .antMatchers("/login-google").permitAll()
 	            .antMatchers("/confirmar-usuario").permitAll()
+	            .antMatchers("/validar-username-phone").permitAll()
 	            .antMatchers("/resetear-password").permitAll()
 	            .antMatchers("/confirmar-reseteo-password").permitAll()
 	            .antMatchers("/formulario-reseteo-password").permitAll()

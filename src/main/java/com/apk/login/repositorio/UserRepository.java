@@ -1,4 +1,5 @@
 package com.apk.login.repositorio;
+import java.util.List;
 import java.util.Optional;
 
 import javax.transaction.Transactional;
@@ -17,6 +18,9 @@ public interface UserRepository extends JpaRepository<User, String>{
     //User findByUsername(String username);
     
     Optional<User> findByUsername(String username);
+    
+    @Query(value="SELECT ur.rolid, r.descripcion,u.username, u.phone FROM user u , user_roles ur, roles r WHERE u.userid=ur.userid AND r.id=ur.rolid AND (u.username=:username or u.phone=:phone)", nativeQuery=true)
+    List<Object> validarExisteUserPhone(@Param("username") String username, @Param("phone") String phone);
 
 
     @Transactional

@@ -2,7 +2,9 @@ package com.apk.login.service;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 
 import javax.ws.rs.core.Response;
 
@@ -22,8 +24,10 @@ import com.apk.login.modelo.Mascota;
 import com.apk.login.modelo.MascotaTemporal;
 import com.apk.login.modelo.User;
 import com.apk.login.modelo.UserRoles;
+import com.apk.login.repositorio.RolUserRepository;
 import com.apk.login.repositorio.UserRepository;
 import com.apk.login.utils.SendMail;
+import com.apk.login.utils.ValidarUserRegistrar;
 import com.ayalait.response.ResponseResultado;
 import com.ayalait.utils.Email;
 import com.ayalait.utils.ErrorState;
@@ -45,6 +49,9 @@ public class UserService implements UserDetailsService{
 		
 	@Autowired
     private JwtTokenProvider jwtTokenProvider;
+	
+	@Autowired
+	private RolUserRepository userRolRepository;
 
 	
 	ErrorState error= new ErrorState();
@@ -97,15 +104,14 @@ public class UserService implements UserDetailsService{
 				
 			}else {
 
-				 if(userTem.getPlataforma().equalsIgnoreCase("manual")){
-					 String pw1=new BCryptPasswordEncoder().encode(userTem.getPassword());
-						userTem.setPassword(pw1);
-				 }	
+//				 if(userTem.getPlataforma().equalsIgnoreCase("manual")){
+//					 String pw1=new BCryptPasswordEncoder().encode(userTem.getPassword());
+//						userTem.setPassword(pw1);
+//				 }	
 				 
-				 User user= userRepository.save(userTem);
-				 if(user!= null) {
+				 if(userRolRepository.save(userTem.getRoles().get(0))!= null) {
 					 //Crear tabla con las notificaciones para poder ser enviadas en otro momento si falla
-					 ResponseResultado response= envioConfirmacion(user);
+					 ResponseResultado response= envioConfirmacion(userTem);
 					 if(response.isStatus()) {
 						 return new ResponseEntity<String>(new Gson().toJson(response.getResultado()),HttpStatus.OK);
 					 }else {
@@ -132,6 +138,72 @@ public class UserService implements UserDetailsService{
 		 
 		
 	 }
+	 
+	 
+	 public ResponseEntity<String> validarUserNamePhone(String username, String phone) {
+			try {
+				Iterator<Object> lst = userRepository.validarExisteUserPhone(username, phone).iterator();
+				List<ValidarUserRegistrar> lstUser= new ArrayList<ValidarUserRegistrar>();
+				int pos=0;
+				if(lst != null && lst.hasNext()) {
+					while( lst.hasNext()) {
+						Object[] objArray = (Object[]) lst.next();
+						ValidarUserRegistrar items = new ValidarUserRegistrar();
+						if(objArray[2].toString().equals(username) && !objArray[3].toString().equals(phone) ) {
+							items.setExiste(2);
+							   items.setPerfil(objArray[1].toString());
+							   items.setRol(Integer.parseInt(objArray[0].toString()) );
+							   return new ResponseEntity<String>(new Gson().toJson(items),HttpStatus.OK);
+						}else if (objArray[2].toString().equals(username) && objArray[3].toString().equals(phone) ) {
+							   items.setExiste(4);
+							   items.setPerfil(objArray[1].toString());
+							   items.setRol(Integer.parseInt(objArray[0].toString()) );
+							   return new ResponseEntity<String>(new Gson().toJson(items),HttpStatus.OK);
+
+						}else if (!objArray[2].toString().equals(username) && objArray[3].toString().equals(phone) ) {
+							   items.setExiste(3);
+							   items.setPerfil(objArray[1].toString());
+							   items.setRol(Integer.parseInt(objArray[0].toString()) );
+							   return new ResponseEntity<String>(new Gson().toJson(items),HttpStatus.OK);
+
+						}else {
+							pos++;
+							
+					        
+							if(pos>1) {
+								items.setExiste(3);
+								   items.setPerfil(objArray[1].toString());
+								   items.setRol(Integer.parseInt(objArray[0].toString()) );
+								 return new ResponseEntity<String>(new Gson().toJson(items),HttpStatus.OK);
+							}
+								  
+
+						}
+						   
+					}
+					
+					
+				}else {
+					ValidarUserRegistrar items = new ValidarUserRegistrar();
+					items.setExiste(1);
+					return new ResponseEntity<String>(new Gson().toJson(items),HttpStatus.OK);
+				}
+			} catch (Exception e) {
+				error.setCode(90020);
+				error.setMenssage(e.getCause().getMessage());
+				return new ResponseEntity<String>(new Gson().toJson(error),HttpStatus.NOT_ACCEPTABLE);
+			}
+			ValidarUserRegistrar items = new ValidarUserRegistrar();
+			items.setExiste(0);
+			return new ResponseEntity<String>(new Gson().toJson(items),HttpStatus.OK);
+		}
+	 
+	 // Método para convertir Iterator a Stream
+	    private static <T> java.util.stream.Stream<T> streamFromIterator(Iterator<T> iterator) {
+	        return java.util.stream.StreamSupport.stream(
+	            java.util.Spliterators.spliteratorUnknownSize(iterator, java.util.Spliterator.ORDERED), false
+	        );
+	    }
 	 
 	 public ResponseEntity<String> validUserGoogle(String idUser) throws java.util.NoSuchElementException{
 		 
