@@ -108,6 +108,7 @@ public class UserService implements UserDetailsService{
 //					 String pw1=new BCryptPasswordEncoder().encode(userTem.getPassword());
 //						userTem.setPassword(pw1);
 //				 }	
+				userTem.getRoles().get(0).setUserid(userExist.getUserid());
 				 
 				 if(userRolRepository.save(userTem.getRoles().get(0))!= null) {
 					 //Crear tabla con las notificaciones para poder ser enviadas en otro momento si falla
