@@ -4,6 +4,7 @@ public class AuthRequest {
 
 	private String username;
     private String password;
+    private String plataforma;
 	public String getUsername() {
 		return username;
 	}
@@ -15,6 +16,12 @@ public class AuthRequest {
 	}
 	public void setPassword(String password) {
 		this.password = password;
+	}
+	public String getPlataforma() {
+		return plataforma;
+	}
+	public void setPlataforma(String plataforma) {
+		this.plataforma = plataforma;
 	}
     
     

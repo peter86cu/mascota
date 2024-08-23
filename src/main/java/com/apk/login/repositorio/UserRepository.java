@@ -19,6 +19,8 @@ public interface UserRepository extends JpaRepository<User, String>{
     
     Optional<User> findByUsername(String username);
     
+    Optional<User> findByUsernameAndPlataforma(String username, String plataforma);
+    
     @Query(value="SELECT ur.rolid, r.descripcion,u.username, u.phone FROM user u , user_roles ur, roles r WHERE u.userid=ur.userid AND r.id=ur.rolid AND (u.username=:username or u.phone=:phone)", nativeQuery=true)
     List<Object> validarExisteUserPhone(@Param("username") String username, @Param("phone") String phone);
 

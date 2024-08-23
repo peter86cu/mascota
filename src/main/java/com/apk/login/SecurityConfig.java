@@ -48,7 +48,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	            .antMatchers("/peso-mascota").permitAll()
 	            .antMatchers("/add-mascota").permitAll()
 	            .antMatchers("/create-user").permitAll()
-	            .antMatchers("/validar-google").permitAll()
+	            .antMatchers("/validar-google/*").permitAll()
 	            .antMatchers("/login-google").permitAll()
 	            .antMatchers("/confirmar-usuario").permitAll()
 	            .antMatchers("/validar-username-phone").permitAll()

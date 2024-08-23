@@ -206,10 +206,10 @@ public class UserService implements UserDetailsService{
 	        );
 	    }
 	 
-	 public ResponseEntity<String> validUserGoogle(String idUser) throws java.util.NoSuchElementException{
+	 public ResponseEntity<String> validUserGoogle(String email) throws java.util.NoSuchElementException{
 		 
 		 try {
-			 User user= userRepository.findById(idUser).get();
+			 User user= userRepository.findByUsername(email).get();
 			 if(user!= null)
 				 return new ResponseEntity<String>(new Gson().toJson("true"),HttpStatus.OK);
 			  return new ResponseEntity<String>(new Gson().toJson("false"),HttpStatus.NOT_FOUND);
@@ -221,6 +221,12 @@ public class UserService implements UserDetailsService{
 		 
 		
 		 
+	 }
+	 
+	 
+	 public User obtenerUserPorUserName(String email, String plataforma) throws java.util.NoSuchElementException{
+			 User user= userRepository.findByUsernameAndPlataforma(email, plataforma).get();
+			 return user;
 	 }
 
 	 public ResponseEntity<String> resetearPassword(String mail) {

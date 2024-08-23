@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -44,9 +45,9 @@ public class UserController {
     }
     
 
-    @GetMapping("validar-google")
-    public ResponseEntity<String> obtenerPerfilPorId(@RequestParam("id") String id) {    	
-       return userService.validUserGoogle(id);
+    @GetMapping("validar-google/{email}")
+    public ResponseEntity<String> obtenerPerfilPorId(@PathVariable String email) {    	
+       return userService.validUserGoogle(email);
     }
     
     @GetMapping(value="confirmar-usuario")
