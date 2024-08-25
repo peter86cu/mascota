@@ -66,7 +66,7 @@ public class UserService implements UserDetailsService{
 	 public User authenticate(String username, String password) throws AuthenticationException{
 	        
 		
-			 User user = userRepository.findByUsername(username).get();
+			 User user = userRepository.findUsername(username);
 		        if (user != null && passwordEncoder.matches(password, user.getPassword())) {
 		        	      	
 		            return user;
@@ -79,12 +79,15 @@ public class UserService implements UserDetailsService{
 		 
 		 try {
 			 User userTem= new Gson().fromJson(news, User.class);
-			 User userExist = userRepository.findByUsername(userTem.getUsername()).get();
+			 User userExist = userRepository.findUsername(userTem.getUsername());
 			 
-			if( userExist.getRoles().stream()
-		      .filter(rol-> rol.getId() == userTem.getRoles().get(0).getId())
-		      .findAny()
-		      .orElse(null)!=null) {
+			 if(userExist==null) {
+				 
+			 
+//			if( userExist.getRoles().stream()
+//		      .filter(rol-> rol.getId() == userTem.getRoles().get(0).getId())
+//		      .findAny()
+//		      .orElse(null)!=null) {
 				
 					
 				 
@@ -101,15 +104,14 @@ public class UserService implements UserDetailsService{
 					
 				 }				
 				  return new ResponseEntity<String>(new Gson().toJson("Ocurrio un error registrando al usuario."),HttpStatus.NOT_FOUND);
-				
+//			}else {
+//				  return new ResponseEntity<String>(new Gson().toJson("El usuario no tienes roles asignados. Contactar a un administrador."),HttpStatus.UNAUTHORIZED);
+//
+//			}
 			}else {
 
-//				 if(userTem.getPlataforma().equalsIgnoreCase("manual")){
-//					 String pw1=new BCryptPasswordEncoder().encode(userTem.getPassword());
-//						userTem.setPassword(pw1);
-//				 }	
+	
 				userTem.getRoles().get(0).setUserid(userExist.getUserid());
-				 
 				 if(userRolRepository.save(userTem.getRoles().get(0))!= null) {
 					 //Crear tabla con las notificaciones para poder ser enviadas en otro momento si falla
 					 ResponseResultado response= envioConfirmacion(userTem);
@@ -209,7 +211,7 @@ public class UserService implements UserDetailsService{
 	 public ResponseEntity<String> validUserGoogle(String email) throws java.util.NoSuchElementException{
 		 
 		 try {
-			 User user= userRepository.findByUsername(email).get();
+			 User user= userRepository.findUsername(email);
 			 if(user!= null)
 				 return new ResponseEntity<String>(new Gson().toJson("true"),HttpStatus.OK);
 			  return new ResponseEntity<String>(new Gson().toJson("false"),HttpStatus.NOT_FOUND);
@@ -230,7 +232,7 @@ public class UserService implements UserDetailsService{
 	 }
 
 	 public ResponseEntity<String> resetearPassword(String mail) {
-		 User user= userRepository.findByUsername(mail).get();
+		 User user= userRepository.findUsername(mail);
 		 if(user!=null) {
 			 //genero token 
 			String token = jwtTokenProvider.createToken(mail);

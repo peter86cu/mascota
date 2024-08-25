@@ -61,6 +61,10 @@ public class AuthController {
 	        			if(user.getState()==1)
 							return new ResponseEntity<String>(new Gson().toJson("Debe confirmar el correo para poder acceder."), HttpStatus.NOT_FOUND);
 
+	        			if(!user.getPlataforma().equalsIgnoreCase(request.getPlataforma()))
+							return new ResponseEntity<String>(new Gson().toJson("El usuario ."+user.getUsername()+" debe acceder con otra plataforma."), HttpStatus.NOT_ACCEPTABLE);
+
+	        				
 			        	String token = jwtTokenProvider.createToken(request.getUsername());
 			        	List<Mascota> lstMacotas= new ArrayList<Mascota>();
 			        	for(Mascota mascota : user.getMascotas()) {
@@ -82,6 +86,10 @@ public class AuthController {
 			        	if(user.getState()==1)
 							return new ResponseEntity<String>(new Gson().toJson("Debe confirmar el correo para poder acceder."), HttpStatus.NOT_FOUND);
 
+			        	if(!user.getPlataforma().equalsIgnoreCase(request.getPlataforma()))
+							return new ResponseEntity<String>(new Gson().toJson("El usuario ."+user.getUsername()+" debe acceder con otra plataforma."), HttpStatus.NOT_ACCEPTABLE);
+
+			        	
 			        	String token = jwtTokenProvider.getToken(autentication);
 			        	List<Mascota> lstMacotas= new ArrayList<Mascota>();
 			        	for(Mascota mascota : user.getMascotas()) {
