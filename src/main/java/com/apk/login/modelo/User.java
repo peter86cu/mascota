@@ -28,7 +28,7 @@ public class User implements Serializable {
 
 	private String plataforma;
 
-	@OneToMany(mappedBy = "userid", fetch = FetchType.LAZY)
+	@OneToMany(mappedBy = "userid", fetch = FetchType.EAGER)
 	private List<UserRoles> roles;
 
 	private int state;

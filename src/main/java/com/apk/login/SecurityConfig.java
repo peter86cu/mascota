@@ -37,7 +37,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 			auth.jdbcAuthentication().dataSource(dataSource)
 	        	.usersByUsernameQuery("select username, password, state"
 	            	+ " from user where  username=?")
-	        	.authoritiesByUsernameQuery("select u.name,rol.descripcion from user u  join roles rol  on(rol.id=u.rol) where u.username=?");
+	        	.authoritiesByUsernameQuery("select u.name,rol.descripcion from user u JOIN user_roles ur ON (ur.userid=u.userid)  join roles rol  on(rol.id=ur.rolid) where u.username=?");
 	    }
 
 	    @Override
@@ -55,19 +55,21 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	            .antMatchers("/resetear-password").permitAll()
 	            .antMatchers("/confirmar-reseteo-password").permitAll()
 	            .antMatchers("/formulario-reseteo-password").permitAll()
-	            .antMatchers("/listado-tipo-raza").permitAll()
+	            .antMatchers("/listado-tipo-raza/listado-tipo-raza").permitAll()
 	            .antMatchers("/add-peso-mascota").permitAll()
-	            .antMatchers("/listado-vacunas").permitAll()
+	            .antMatchers("/api/parameters/listado-vacunas").permitAll()
 	            .antMatchers("/add-vacuna-mascota").permitAll()
 	            .antMatchers("/activity-estilista").permitAll()
-	            .antMatchers("/workSchedule").permitAll()
-	            .antMatchers("/calendario-word-user").permitAll()
+	            .antMatchers("/api/parameters/workSchedule").permitAll()
+	            .antMatchers("/api/parameters/calendario-word-user").permitAll()
 	            .antMatchers("/add-evento").permitAll()
 	            .antMatchers("/add-businesses").permitAll()
 	            .antMatchers("/api/businesses/list-businesses").permitAll()
 	            .antMatchers("/api/businesses/list-activity-businesses").permitAll()
+	            .antMatchers("/api/businesses/add-activity-businesses").permitAll()
 	            .antMatchers("/api/comments/business/*").permitAll()
 	            .antMatchers("/api/responses/comment/*").permitAll()
+	            .antMatchers("/api/parameters/activities").permitAll()
 	            .anyRequest().authenticated();
 	    }
 	    

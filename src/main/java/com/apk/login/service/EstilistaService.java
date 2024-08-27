@@ -50,7 +50,7 @@ public class EstilistaService {
 	 
 	 
     
-  public ResponseEntity<String> guardarActividad(String mascota, String token){
+  public ResponseEntity<?> guardarActividad(String mascota, String token){
     	try {
     		if (token != null) {
     			
@@ -70,10 +70,10 @@ public class EstilistaService {
 	    			//ActividadEstilista perfil = new Gson().fromJson(mascota, ActividadEstilista.class);  
 	    			ObjectMapper objectMapper = new ObjectMapper();
 	    			ActividadEstilista perfil = objectMapper.readValue(mascota, ActividadEstilista.class);
-
-	        		if(actividadRepository.save(perfil)!=null) {
-	        		   return new ResponseEntity<String>(new Gson().toJson("Evento guardado.")   , HttpStatus.OK);	
-	        		}
+	    			return ResponseEntity.ok(actividadRepository.save(perfil));
+	        		//if(actividadRepository.save(perfil)!=null) {
+	        		  // return new ResponseEntity<String>(new Gson().toJson(actividadRepository.save(perfil))   , HttpStatus.OK);	
+	        		//}
 				}
     			
     		}else {
@@ -82,7 +82,7 @@ public class EstilistaService {
     		  
     		
     		
-    		return new ResponseEntity<String>(new Gson().toJson ("Ocurrio un error. Intente de nuevo")  , HttpStatus.NOT_ACCEPTABLE);
+    		//return new ResponseEntity<String>(new Gson().toJson ("Ocurrio un error. Intente de nuevo")  , HttpStatus.NOT_ACCEPTABLE);
 		} catch (Exception e) {
 			return new ResponseEntity<String>(new Gson().toJson ("Ocurrio un error. Intente de nuevo")  , HttpStatus.NOT_ACCEPTABLE);	
 		}

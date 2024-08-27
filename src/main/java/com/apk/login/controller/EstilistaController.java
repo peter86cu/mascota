@@ -55,7 +55,7 @@ public class EstilistaController {
 	 @PostMapping(value="add-evento",produces=MediaType.APPLICATION_JSON_VALUE)
 	    @CrossOrigin(origins = "*", methods = { RequestMethod.GET, RequestMethod.POST })
 		@ResponseStatus(HttpStatus.CREATED)
-	    public ResponseEntity<String> addActividad(@RequestBody String data, HttpServletRequest request) {
+	    public ResponseEntity<?> addActividad(@RequestBody String data, HttpServletRequest request) {
 	    	String token = request.getHeader(ENCABEZADO);
 	    	boolean all = Boolean.parseBoolean(request.getHeader(ADD)) ;
 	    	if(!all)

@@ -15,12 +15,12 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 @Table(name="businesses_activity")
 public class BusinessActivity {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private String id;
     private String actividad;
     private String descripcion;
     private int tiempo;
     private double precio;
+    private int turnos;
     private String status;  
     @JsonIgnore
     @ManyToOne
@@ -68,6 +68,12 @@ public class BusinessActivity {
 	}
 	public void setNegocio(Business negocio) {
 		this.negocio = negocio;
+	}
+	public int getTurnos() {
+		return turnos;
+	}
+	public void setTurnos(int turnos) {
+		this.turnos = turnos;
 	}
 	
 

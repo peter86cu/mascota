@@ -10,11 +10,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import com.apk.login.JwtTokenProvider;
+import com.apk.login.modelo.Activity;
 import com.apk.login.modelo.CalendarioDay;
 import com.apk.login.modelo.CalendarioWork;
 import com.apk.login.modelo.Mascota;
 import com.apk.login.modelo.TipoRaza;
 import com.apk.login.modelo.TipoVacunas;
+import com.apk.login.repositorio.ActivityRepository;
 import com.apk.login.repositorio.CalendarioDayRepository;
 import com.apk.login.repositorio.CalendarioWordRepository;
 import com.apk.login.repositorio.PerfilMascotaRepository;
@@ -42,6 +44,9 @@ public class ParametroService {
 
 	@Autowired
 	CalendarioDayRepository calendarioDayRepository;
+	
+	@Autowired
+	ActivityRepository activityRepository;
 
 	@Value("${jwt.secret}")
 	private String secretKey;
@@ -197,6 +202,33 @@ public class ParametroService {
 
 	}
 
-	
+	public ResponseEntity<?> listadoActividadesDisponibles(String token) {
+
+		try {
+			if (token != null) {
+
+				// Se procesa el token y se recupera el usuario y los roles.
+				Claims claims = Jwts.parser().setSigningKey(jwt.key).parseClaimsJws(token.replace(PREFIJO_TOKEN, ""))
+						.getBody();
+				// Claims claims = jwt.getUsernameFromToken(token);
+				Date authorities = claims.getExpiration();
+
+				if (authorities.before(fecha)) {
+					return new ResponseEntity<String>("Expiró la sección", HttpStatus.BAD_REQUEST);
+				} else {
+					List<Activity> work = activityRepository.listadoActividadesActivas();					
+							return ResponseEntity.ok(work);
+				}
+
+			} else {
+				return new ResponseEntity<String>(new Gson().toJson("Sin autorización"), HttpStatus.UNAUTHORIZED);
+			}
+
+		} catch (Exception e) {
+			return new ResponseEntity<String>(new Gson().toJson("Sin autorización"), HttpStatus.UNAUTHORIZED);
+		}
+
+	}
+
 
 }

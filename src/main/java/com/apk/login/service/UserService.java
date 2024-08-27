@@ -93,14 +93,18 @@ public class UserService implements UserDetailsService{
 				 
 				 User user= userRepository.save(userTem);
 				 if(user!= null) {
-					 //Crear tabla con las notificaciones para poder ser enviadas en otro momento si falla
-					 ResponseResultado response= envioConfirmacion(user);
-					 if(response.isStatus()) {
-						 return new ResponseEntity<String>(new Gson().toJson(response.getResultado()),HttpStatus.OK);
-					 }else {
-						  return new ResponseEntity<String>(new Gson().toJson(response.getError().getMenssage()),HttpStatus.NOT_FOUND);
+					
+					 if(userRolRepository.save(userTem.getRoles().get(0))!= null) {
+						 //Crear tabla con las notificaciones para poder ser enviadas en otro momento si falla
+						 ResponseResultado response= envioConfirmacion(user);
+						 if(response.isStatus()) {
+							 return new ResponseEntity<String>(new Gson().toJson(response.getResultado()),HttpStatus.OK);
+						 }else {
+							  return new ResponseEntity<String>(new Gson().toJson("Usuario registrado. Le hemos enviado un correo electrónico que debe confirmar para continuar."),HttpStatus.OK);
 
+						 }	 
 					 }
+					
 					
 				 }				
 				  return new ResponseEntity<String>(new Gson().toJson("Ocurrio un error registrando al usuario."),HttpStatus.NOT_FOUND);
@@ -227,7 +231,7 @@ public class UserService implements UserDetailsService{
 	 
 	 
 	 public User obtenerUserPorUserName(String email, String plataforma) throws java.util.NoSuchElementException{
-			 User user= userRepository.findByUsernameAndPlataforma(email, plataforma).get();
+			 User user= userRepository.findByUsernameAndPlataforma(email, plataforma);
 			 return user;
 	 }
 

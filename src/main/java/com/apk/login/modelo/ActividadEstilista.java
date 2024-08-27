@@ -42,7 +42,7 @@ public class ActividadEstilista implements Serializable {
 	private String endtime;
 	private double precio;
 	private String title;
-	
+	private int turnos;
     @ManyToOne
     @JoinColumn(name = "userid") 
     private User usuario;
@@ -147,6 +147,16 @@ public class ActividadEstilista implements Serializable {
 
 	public void setTitle(String title) {
 		this.title = title;
+	}
+
+
+	public int getTurnos() {
+		return turnos;
+	}
+
+
+	public void setTurnos(int turnos) {
+		this.turnos = turnos;
 	}
 
 }

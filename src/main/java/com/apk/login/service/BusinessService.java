@@ -37,6 +37,8 @@ public class BusinessService {
 	@Autowired
 	private BussinessActivityRepository bussinesActivityRepository;
 
+	@Autowired
+	private BussinessActivityRepository bussinessActivityRepository;
 
 	@Value("${jwt.secret}")
 	private String secretKey;
@@ -87,6 +89,54 @@ public class BusinessService {
 
 	}
 	
+	
+	
+	public ResponseEntity<String> addActivityBusiness(String userid, BusinessActivity business, String token) {
+		try {
+			if (token != null) {
+
+				// Se procesa el token y se recupera el usuario y los roles.
+				Claims claims = Jwts.parser().setSigningKey(jwt.key).parseClaimsJws(token.replace(PREFIJO_TOKEN, ""))
+						.getBody();
+				// Claims claims = jwt.getUsernameFromToken(token);
+				Date authorities = claims.getExpiration();
+
+				if (authorities.before(fecha)) {
+					return new ResponseEntity<String>("Expiró la sección", HttpStatus.BAD_REQUEST);
+				} else {
+					// creamos el objeto con la información del usuario
+
+					Business negocio = businessRepository.obtenerNegocioPorUsuario(userid);
+					
+					if(negocio!=null) {
+						business.setNegocio(negocio);
+
+						if ( bussinessActivityRepository.save(business)!= null) {
+							return new ResponseEntity<String>(new Gson().toJson("Actividad registrada."), HttpStatus.OK);
+						}
+					}else {
+						return new ResponseEntity<String>(new Gson().toJson("Negocio no habilitado."), HttpStatus.ALREADY_REPORTED);
+
+					}
+
+					
+					
+				}
+
+			} else {
+				return new ResponseEntity<String>(new Gson().toJson("Sin autorización"), HttpStatus.UNAUTHORIZED);
+			}
+
+			return new ResponseEntity<String>(new Gson().toJson("Ocurrio un error. Intente de nuevo"),
+					HttpStatus.NOT_ACCEPTABLE);
+		} catch (Exception e) {
+			return new ResponseEntity<String>(new Gson().toJson("Ocurrio un error. Intente de nuevo"),
+					HttpStatus.NOT_ACCEPTABLE);
+		}
+
+	}
+	
+	
 	public ResponseEntity<?> obtenerListaNegociosDisponibles(String busqueda, String token) {
 
 		try {
@@ -122,6 +172,41 @@ public class BusinessService {
 
 	}
 	
+	
+	public ResponseEntity<?> obtenerNegocioPorUsuario(String userId, String token) {
+
+		try {
+			if (token != null) {
+
+				// Se procesa el token y se recupera el usuario y los roles.
+				Claims claims = Jwts.parser().setSigningKey(jwt.key).parseClaimsJws(token.replace(PREFIJO_TOKEN, ""))
+						.getBody();
+				// Claims claims = jwt.getUsernameFromToken(token);
+				Date authorities = claims.getExpiration();
+
+				if (authorities.before(fecha)) {
+					return new ResponseEntity<String>("Expiró la sección", HttpStatus.BAD_REQUEST);
+				} else {
+					Business negocio = businessRepository.obtenerNegocioPorUsuario(userId);
+					if (negocio!=null) {
+						return  ResponseEntity.ok(negocio);
+
+					} else {
+						return new ResponseEntity<String>(new Gson().toJson(negocio), HttpStatus.NO_CONTENT);
+
+					}
+
+				}
+
+			} else {
+				return new ResponseEntity<String>(new Gson().toJson("Sin autorización"), HttpStatus.UNAUTHORIZED);
+			}
+
+		} catch (Exception e) {
+			return new ResponseEntity<String>(new Gson().toJson("Sin autorización"), HttpStatus.UNAUTHORIZED);
+		}
+
+	}
 	
 	public ResponseEntity<?> obtenerListaActividadesPorNegocio(String negocioId , String token) {
 
