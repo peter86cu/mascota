@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -24,6 +25,7 @@ import org.springframework.http.MediaType;
 
 
 @RestController
+@RequestMapping("/api/pet")
 public class PerfilMascotaController {
 
 	public static final String ENCABEZADO = "Authorization";
@@ -42,7 +44,7 @@ public class PerfilMascotaController {
     @PostMapping(value="add-mascota",produces=MediaType.APPLICATION_JSON_VALUE)
     @CrossOrigin(origins = "*", methods = { RequestMethod.GET, RequestMethod.POST })
 	@ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<String> addMascota(@RequestBody String data, HttpServletRequest request) {
+    public ResponseEntity<?> addMascota(@RequestBody String data, HttpServletRequest request) {
     	String token = request.getHeader(ENCABEZADO);
     	return perfilMascotaService.guardarMascota(data, token);
        

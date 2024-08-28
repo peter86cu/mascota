@@ -1,5 +1,6 @@
 package com.apk.login.service;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -15,6 +16,7 @@ import com.apk.login.JwtTokenProvider;
 import com.apk.login.modelo.Mascota;
 import com.apk.login.modelo.MascotaTemporal;
 import com.apk.login.modelo.PesoMascota;
+import com.apk.login.modelo.PesoMascotaTemporal;
 import com.apk.login.modelo.Vacuna;
 import com.apk.login.repositorio.MascotaPesoRepository;
 import com.apk.login.repositorio.MascotaVacunaRepository;
@@ -93,7 +95,7 @@ public class PerfilMascotaService {
     	
      }
     
-    public ResponseEntity<String> guardarMascota(String mascota, String token){
+    public ResponseEntity<?> guardarMascota(String mascota, String token){
     	try {
     		if (token != null) {
     			
@@ -129,21 +131,57 @@ public class PerfilMascotaService {
 	    			perfil.setTamano(perfil1.getTamano());
 	    			perfil.setUsuario(perfil1.getUsuario());
 	    			perfil.setVacunas(null);
-	        		if(perfilMascotaRepository.save(perfil)!=null) {
-	        			PesoMascota peso= new PesoMascota();
-	        			peso.setFecha(perfil1.getPesoMascota().get(0).getFecha());
-	        			peso.setMascotaid(perfil.getMascotaid());
-	        			peso.setPeso(perfil1.getPesoMascota().get(0).getPeso());
-	        			peso.setPesoid(0);
-	        			peso.setUm(perfil1.getPesoMascota().get(0).getUm());
-	        			if(pesoMascotaRepository.save(peso)!=null) {
-	 	        		   return new ResponseEntity<String>(new Gson().toJson("Mascota agregada: "+ perfil.getNombre())   , HttpStatus.OK);	
+	    			Mascota salvada= perfilMascotaRepository.save(perfil);
+	        		if(salvada!=null) {
+	        			if(!perfil1.getPesoMascota().isEmpty()) {
+	        				MascotaTemporal response= new MascotaTemporal();
+	        				PesoMascota peso= new PesoMascota();
+		        			peso.setFecha(perfil1.getPesoMascota().get(0).getFecha());
+		        			peso.setMascotaid(perfil.getMascotaid());
+		        			peso.setPeso(perfil1.getPesoMascota().get(0).getPeso());
+		        			peso.setPesoid(0);
+		        			peso.setUm(perfil1.getPesoMascota().get(0).getUm());
+		        			PesoMascota pesoSave=pesoMascotaRepository.save(peso);
+		        			response.setNombre(salvada.getNombre());
+		        			response.setRaza(salvada.getRaza());
+		        			response.setColor(salvada.getColor());
+		        			response.setComportamiento(salvada.getComportamiento());
+		        			response.setDesparasitaciones(null);
+		        			response.setEdad(salvada.getEdad());
+		        			response.setEspecie(salvada.getEspecie());
+		        			response.setFechanacimiento(salvada.getFechanacimiento());
+		        			response.setFotos(salvada.getFotos());
+		        			response.setGenero(salvada.getGenero());
+		        			response.setHistorial_medico(salvada.getHistorial_medico());
+		        			response.setMascotaid(salvada.getMascotaid());
+		        			response.setNecesidades_especiales(salvada.getNecesidades_especiales());
+		        			response.setPersonalidad(salvada.getPersonalidad());
+		        			response.setTamano(salvada.getTamano());
+		        			response.setUsuario(salvada.getUsuario());
+		        			response.setVacunas(null);
+			    			
+		        			if(pesoSave!=null) {
+		    	    			
+		    	    			List<PesoMascotaTemporal> lstPeso= new ArrayList<PesoMascotaTemporal>();
+		    	    			PesoMascotaTemporal pesoTem= new PesoMascotaTemporal();
+		    	    			pesoTem.setFecha(pesoSave.getFecha());
+		    	    			pesoTem.setMascotaid(pesoSave.getMascotaid());
+		    	    			pesoTem.setPeso(pesoSave.getPeso());
+		    	    			pesoTem.setUm(pesoSave.getUm());
+		    	    			lstPeso.add(pesoTem);
+		    	    			response.setPesoMascota(lstPeso);
+		 	        		   return  ResponseEntity.ok(response);
 
+		        			}else {
+		        				perfilMascotaRepository.delete(perfil);
+			 	        		return new ResponseEntity<String>(new Gson().toJson("Error salvando mascota"+ perfil.getNombre())   , HttpStatus.NOT_ACCEPTABLE);	
+
+		        			}
 	        			}else {
-	        				perfilMascotaRepository.delete(perfil);
-		 	        		return new ResponseEntity<String>(new Gson().toJson("Error salvando mascota"+ perfil.getNombre())   , HttpStatus.NOT_ACCEPTABLE);	
+		 	        		   return  ResponseEntity.ok(salvada);	
 
 	        			}
+	        		
 	        		}
 				}
     			
@@ -218,14 +256,14 @@ public class PerfilMascotaService {
 					return new ResponseEntity<String>("Expiró la sección", HttpStatus.BAD_REQUEST);
 				} else {
 					// creamos el objeto con la información del usuario
-					JsonParser jsonParser = new JsonParser();
+					/*JsonParser jsonParser = new JsonParser();
 				    JsonObject payment_id = (JsonObject) jsonParser.parse(datos);
-				    String id= payment_id.get("mascotaid").getAsString();
+				    String id= payment_id.get("mascota").getAsString();
 				    
-				    Mascota mGuarda= perfilMascotaRepository.findById(id).get();
+				    Mascota mGuarda= perfilMascotaRepository.findById(id).get();*/
 				    
 	    			Vacuna perfil = new Gson().fromJson(datos, Vacuna.class); 
-	    			perfil.setMascota(mGuarda);
+	    			//perfil.setMascota(mGuarda);
 	    			
 	        		if(vacunaMascotaRepository.save(perfil)!=null) {
 	        		   return new ResponseEntity<String>(new Gson().toJson("Vacuna de la mascota guardada.")   , HttpStatus.OK);	
