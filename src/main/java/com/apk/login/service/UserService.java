@@ -234,6 +234,11 @@ public class UserService implements UserDetailsService{
 			 User user= userRepository.findByUsernameAndPlataforma(email, plataforma);
 			 return user;
 	 }
+	 
+	 public User validarUserPlataformaLogin(String email, String plataforma) throws java.util.NoSuchElementException{
+		 User user= userRepository.findUserExist(email, plataforma);
+		 return user;
+ }
 
 	 public ResponseEntity<String> resetearPassword(String mail) {
 		 User user= userRepository.findUsername(mail);

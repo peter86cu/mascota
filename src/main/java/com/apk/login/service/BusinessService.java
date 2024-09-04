@@ -208,6 +208,42 @@ public class BusinessService {
 
 	}
 	
+	
+	public ResponseEntity<?> obtenerNegocioParaCalificar(String actividadId, String token) {
+
+		try {
+			if (token != null) {
+
+				// Se procesa el token y se recupera el usuario y los roles.
+				Claims claims = Jwts.parser().setSigningKey(jwt.key).parseClaimsJws(token.replace(PREFIJO_TOKEN, ""))
+						.getBody();
+				// Claims claims = jwt.getUsernameFromToken(token);
+				Date authorities = claims.getExpiration();
+
+				if (authorities.before(fecha)) {
+					return new ResponseEntity<String>("Expiró la sección", HttpStatus.BAD_REQUEST);
+				} else {
+					Business negocio = businessRepository.obtenerNegocioCalificacion(actividadId);
+					if (negocio!=null) {
+						return  ResponseEntity.ok(negocio);
+
+					} else {
+						return new ResponseEntity<String>(new Gson().toJson(negocio), HttpStatus.NO_CONTENT);
+
+					}
+
+				}
+
+			} else {
+				return new ResponseEntity<String>(new Gson().toJson("Sin autorización"), HttpStatus.UNAUTHORIZED);
+			}
+
+		} catch (Exception e) {
+			return new ResponseEntity<String>(new Gson().toJson("Sin autorización"), HttpStatus.UNAUTHORIZED);
+		}
+
+	}
+	
 	public ResponseEntity<?> obtenerListaActividadesPorNegocio(String negocioId , String token) {
 
 		try {

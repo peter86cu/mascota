@@ -132,7 +132,7 @@ public class EstilistaService {
   		
   		//return new ResponseEntity<String>(new Gson().toJson ("Ocurrio un error. Intente de nuevo")  , HttpStatus.NOT_ACCEPTABLE);
 		} catch (Exception e) {
-			return new ResponseEntity<String>(new Gson().toJson ("Ocurrio un error. Intente de nuevo")  , HttpStatus.NOT_ACCEPTABLE);	
+			return new ResponseEntity<String>(new Gson().toJson ("Ocurrio un error. Intente de nuevo")  , HttpStatus.UNAUTHORIZED);	
 		}
   }
   
@@ -152,9 +152,13 @@ public class EstilistaService {
 				if (authorities.before(fecha)) {					
 					return new ResponseEntity<String>("Expiró la sección", HttpStatus.BAD_REQUEST);
 				} else {
-					
+					List<ActividadEstilista> actividad= new ArrayList<ActividadEstilista>();
+				    if(status.equalsIgnoreCase("All")) {
+				    	actividad= actividadRepository.obtenerAllActividadesEstilista(estilistaId);
+				    }else {
+				    	actividad= actividadRepository.obtenerActividadesEstilista(estilistaId, status);
+				    }
 				    
-				    List<ActividadEstilista> actividad= actividadRepository.obtenerActividadesEstilista(estilistaId, status);
 				    
 				    if(!actividad.isEmpty()) {
  	         		   return ResponseEntity.ok(actividad);	
@@ -172,10 +176,89 @@ public class EstilistaService {
     		
     		
 		} catch (Exception e) {
-			return new ResponseEntity<String>(new Gson().toJson ("Ocurrio un error. Intente de nuevo")  , HttpStatus.NOT_ACCEPTABLE);	
+			return new ResponseEntity<String>(new Gson().toJson ("Ocurrio un error. Intente de nuevo")  , HttpStatus.UNAUTHORIZED);	
 		}
     }
     
+    
+    public ResponseEntity<?> obtenerActividadPorMascota(String mascotaId, String token, String status){
+    	try {
+    		if (token != null) {
+    			
+    			// Se procesa el token y se recupera el usuario y los roles.
+    			Claims claims = Jwts.parser()
+                        .setSigningKey(jwt.key)
+                        .parseClaimsJws(token.replace(PREFIJO_TOKEN, ""))
+                        .getBody();
+				//Claims claims = jwt.getUsernameFromToken(token);
+				Date authorities = claims.getExpiration();
+    			
+				if (authorities.before(fecha)) {					
+					return new ResponseEntity<String>("Expiró la sección", HttpStatus.BAD_REQUEST);
+				} else {
+					
+				    
+				    List<ActividadEstilista> actividad= actividadRepository.obtenerActividadesMascota(mascotaId, status);
+				    
+				    if(!actividad.isEmpty()) {
+ 	         		   return ResponseEntity.ok(actividad);	
+
+ 				}else {
+ 	         		   return new ResponseEntity<String>(new Gson().toJson(actividad )   , HttpStatus.NO_CONTENT);	
+
+ 				}
+				}
+    			
+    		}else {
+    			return new ResponseEntity<String>(new Gson().toJson ("Sin autorización"), HttpStatus.UNAUTHORIZED);
+    		}
+    		  
+    		
+    		
+		} catch (Exception e) {
+			return new ResponseEntity<String>(new Gson().toJson ("Ocurrio un error. Intente de nuevo")  , HttpStatus.UNAUTHORIZED);	
+		}
+    }
+    
+    
+    public ResponseEntity<?> actualizarEvento(String mascotaId, String token, String status){
+    	try {
+    		if (token != null) {
+    			
+    			// Se procesa el token y se recupera el usuario y los roles.
+    			Claims claims = Jwts.parser()
+                        .setSigningKey(jwt.key)
+                        .parseClaimsJws(token.replace(PREFIJO_TOKEN, ""))
+                        .getBody();
+				//Claims claims = jwt.getUsernameFromToken(token);
+				Date authorities = claims.getExpiration();
+    			
+				if (authorities.before(fecha)) {					
+					return new ResponseEntity<String>("Expiró la sección", HttpStatus.BAD_REQUEST);
+				} else {
+					
+				    
+				    List<ActividadEstilista> actividad= actividadRepository.obtenerActividadesMascota(mascotaId, status);
+				    
+				    if(!actividad.isEmpty()) {
+ 	         		   return ResponseEntity.ok(actividad);	
+
+ 				}else {
+ 	         		   return new ResponseEntity<String>(new Gson().toJson(actividad )   , HttpStatus.NO_CONTENT);	
+
+ 				}
+				}
+    			
+    		}else {
+    			return new ResponseEntity<String>(new Gson().toJson ("Sin autorización"), HttpStatus.UNAUTHORIZED);
+    		}
+    		  
+    		
+    		
+		} catch (Exception e) {
+			return new ResponseEntity<String>(new Gson().toJson ("Ocurrio un error. Intente de nuevo")  , HttpStatus.UNAUTHORIZED);	
+		}
+    }
     
 //    public ResponseEntity<String> actualizarActivity(int activityid, String status,String token){
 //    	try {

@@ -4,6 +4,7 @@ package com.apk.login.controller;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -55,59 +56,116 @@ public class AuthController {
 	    @PostMapping("login")
 	    public ResponseEntity<?> login(@RequestBody AuthRequest request) {
 	        try {
-	        	if(request.getPlataforma().contains("internet")) {
-	        		User user = userService.obtenerUserPorUserName(request.getUsername(), request.getPlataforma());
-	        		if(user!=null) {
-	        			if(user.getState()==1)
-							return new ResponseEntity<String>(new Gson().toJson("Debe confirmar el correo para poder acceder."), HttpStatus.NOT_FOUND);
+	        	User userPlatafor= userService.validarUserPlataformaLogin(request.getUsername(), request.getPlataforma());
+	        	if(userPlatafor!=null) {
+	        		if(request.getPlataforma().contains("internet") && userPlatafor.getPlataforma().equalsIgnoreCase(request.getPlataforma())) {
+		        		User user = userService.obtenerUserPorUserName(request.getUsername(), request.getPlataforma());
+		        		if(user!=null) {
+		        			if(user.getState()==1)
+								return new ResponseEntity<String>(new Gson().toJson("Debe confirmar el correo para poder acceder."), HttpStatus.NOT_FOUND);
 
-	        			if(!user.getPlataforma().equalsIgnoreCase(request.getPlataforma()))
-							return new ResponseEntity<String>(new Gson().toJson("El usuario ."+user.getUsername()+" debe acceder con otra plataforma."), HttpStatus.NOT_ACCEPTABLE);
+		        			if(!user.getPlataforma().equalsIgnoreCase(request.getPlataforma()))
+								return new ResponseEntity<String>(new Gson().toJson("El usuario ."+user.getUsername()+" debe acceder con otra plataforma."), HttpStatus.NOT_ACCEPTABLE);
 
-	        				
-			        	String token = jwtTokenProvider.createToken(request.getUsername());
-			        	List<Mascota> lstMacotas= new ArrayList<Mascota>();
-			        	for(Mascota mascota : user.getMascotas()) {
-			        		mascota.setUsuario(user);
-			        		lstMacotas.add(mascota);
+		        				
+				        	String token = jwtTokenProvider.createToken(request.getUsername());
+				        	List<Mascota> lstMacotas= new ArrayList<Mascota>();
+				        	for(Mascota mascota : user.getMascotas()) {
+				        		mascota.setUsuario(user);
+				        		lstMacotas.add(mascota);
+				        	}
+				        	user.setMascotas(lstMacotas);
+				        	AuthResponse response= new AuthResponse(user,token);
+				            return ResponseEntity.ok(response);
+		        		}else {
+							return new ResponseEntity<String>(new Gson().toJson("Usuario no autorizado.."), HttpStatus.BAD_REQUEST);
+
+		        		}
+		        	}else if(request.getPlataforma().contains("manual") && userPlatafor.getPlataforma().equalsIgnoreCase(request.getPlataforma())){
+		        		Authentication autentication = authenticationManager
+								.authenticate(new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()));
+			        	if(autentication.isAuthenticated()) {
+				        	User user=userService.authenticate(request.getUsername(), request.getPassword());
+				        	if(user.getState()==1)
+								return new ResponseEntity<String>(new Gson().toJson("Debe confirmar el correo para poder acceder."), HttpStatus.NOT_FOUND);
+
+				        	if(!user.getPlataforma().equalsIgnoreCase(request.getPlataforma()))
+								return new ResponseEntity<String>(new Gson().toJson("El usuario ."+user.getUsername()+" debe acceder con otra plataforma."), HttpStatus.NOT_ACCEPTABLE);
+
+				        	
+				        	String token = jwtTokenProvider.getToken(autentication);
+				        	List<Mascota> lstMacotas= new ArrayList<Mascota>();
+				        	for(Mascota mascota : user.getMascotas()) {
+				        		mascota.setUsuario(user);
+				        		lstMacotas.add(mascota);
+				        	}
+				        	user.setMascotas(lstMacotas);
+				        	AuthResponse response= new AuthResponse(user,token);
+				            return ResponseEntity.ok(response);
+
+			        	}else {
+		    				return new ResponseEntity<String>(new UsernameNotFoundException("Usuario o contraseña incorrecta.").toString(), HttpStatus.NOT_ACCEPTABLE);
+
 			        	}
-			        	user.setMascotas(lstMacotas);
-			        	AuthResponse response= new AuthResponse(user,token);
-			            return ResponseEntity.ok(response);
-	        		}else {
-						return new ResponseEntity<String>(new Gson().toJson("Usuario no autorizado.."), HttpStatus.BAD_REQUEST);
-
-	        		}
-	        	}else {
-	        		Authentication autentication = authenticationManager
-							.authenticate(new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()));
-		        	if(autentication.isAuthenticated()) {
-			        	User user=userService.authenticate(request.getUsername(), request.getPassword());
-			        	if(user.getState()==1)
-							return new ResponseEntity<String>(new Gson().toJson("Debe confirmar el correo para poder acceder."), HttpStatus.NOT_FOUND);
-
-			        	if(!user.getPlataforma().equalsIgnoreCase(request.getPlataforma()))
-							return new ResponseEntity<String>(new Gson().toJson("El usuario ."+user.getUsername()+" debe acceder con otra plataforma."), HttpStatus.NOT_ACCEPTABLE);
-
-			        	
-			        	String token = jwtTokenProvider.getToken(autentication);
-			        	List<Mascota> lstMacotas= new ArrayList<Mascota>();
-			        	for(Mascota mascota : user.getMascotas()) {
-			        		mascota.setUsuario(user);
-			        		lstMacotas.add(mascota);
-			        	}
-			        	user.setMascotas(lstMacotas);
-			        	AuthResponse response= new AuthResponse(user,token);
-			            return ResponseEntity.ok(response);
-
 		        	}else {
-	    				return new ResponseEntity<String>(new UsernameNotFoundException("Usuario o contraseña incorrecta.").toString(), HttpStatus.NOT_ACCEPTABLE);
+						return new ResponseEntity<String>(new Gson().toJson("Usuario o contraseña incorrecta."), HttpStatus.NOT_ACCEPTABLE);
 
 		        	}
+	        	}else {
+	        		if(request.getPlataforma().contains("internet") ) {
+		        		User user = userService.obtenerUserPorUserName(request.getUsername(), request.getPlataforma());
+		        		if(user!=null) {
+		        			if(user.getState()==1)
+								return new ResponseEntity<String>(new Gson().toJson("Debe confirmar el correo para poder acceder."), HttpStatus.NOT_FOUND);
+
+		        			if(!user.getPlataforma().equalsIgnoreCase(request.getPlataforma()))
+								return new ResponseEntity<String>(new Gson().toJson("El usuario ."+user.getUsername()+" debe acceder con otra plataforma."), HttpStatus.NOT_ACCEPTABLE);
+
+		        				
+				        	String token = jwtTokenProvider.createToken(request.getUsername());
+				        	List<Mascota> lstMacotas= new ArrayList<Mascota>();
+				        	for(Mascota mascota : user.getMascotas()) {
+				        		mascota.setUsuario(user);
+				        		lstMacotas.add(mascota);
+				        	}
+				        	user.setMascotas(lstMacotas);
+				        	AuthResponse response= new AuthResponse(user,token);
+				            return ResponseEntity.ok(response);
+		        		}else {
+							return new ResponseEntity<String>(new Gson().toJson("Usuario no autorizado.."), HttpStatus.BAD_REQUEST);
+
+		        		}
+		        	}else if(request.getPlataforma().contains("manual")){
+		        		Authentication autentication = authenticationManager
+								.authenticate(new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()));
+			        	if(autentication.isAuthenticated()) {
+				        	User user=userService.authenticate(request.getUsername(), request.getPassword());
+				        	if(user.getState()==1)
+								return new ResponseEntity<String>(new Gson().toJson("Debe confirmar el correo para poder acceder."), HttpStatus.NOT_FOUND);
+
+				        	if(!user.getPlataforma().equalsIgnoreCase(request.getPlataforma()))
+								return new ResponseEntity<String>(new Gson().toJson("El usuario ."+user.getUsername()+" debe acceder con otra plataforma."), HttpStatus.NOT_ACCEPTABLE);
+
+				        	
+				        	String token = jwtTokenProvider.getToken(autentication);
+				        	List<Mascota> lstMacotas= new ArrayList<Mascota>();
+				        	for(Mascota mascota : user.getMascotas()) {
+				        		mascota.setUsuario(user);
+				        		lstMacotas.add(mascota);
+				        	}
+				        	user.setMascotas(lstMacotas);
+				        	AuthResponse response= new AuthResponse(user,token);
+				            return ResponseEntity.ok(response);
+
+			        	}else {
+		    				return new ResponseEntity<String>(new UsernameNotFoundException("Usuario o contraseña incorrecta.").toString(), HttpStatus.NOT_ACCEPTABLE);
+
+			        	}
+	        	   }else {
+	   				return new ResponseEntity<String>(new Gson().toJson("Usuario o contraseña incorrecta."), HttpStatus.NO_CONTENT);
+
+	        	   }
 	        	}
-	        	
-	        	
-	        	
 	        } catch (AuthenticationException e) {
 				return new ResponseEntity<String>(new Gson().toJson("Usuario o contraseña incorrecta."), HttpStatus.NO_CONTENT);
 

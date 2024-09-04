@@ -19,4 +19,7 @@ public interface BusinessRepository extends JpaRepository<Business, String> {
 	 
 	 @Query(value="SELECT * FROM businesses WHERE userid=:userId", nativeQuery=true)
 	 Business obtenerNegocioPorUsuario(@Param("userId") String UserId);
+	 
+	 @Query(value="SELECT b.* FROM businesses b  join actividad_estilista ae JOIN event e WHERE e.actividadid=ae.actividadid and b.userid=ae.userid and e.actividadid=:id", nativeQuery=true)
+	 Business obtenerNegocioCalificacion(@Param("id") String id);
 }

@@ -1,6 +1,8 @@
 package com.apk.login.modelo;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.Date;
 
 import javax.persistence.Entity;
@@ -14,6 +16,7 @@ import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 
@@ -32,6 +35,7 @@ public class ActividadEstilista implements Serializable {
 	private String description;
 	
     @Temporal(TemporalType.DATE)
+    //@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
 	private Date fecha;
 	
     @ManyToOne
@@ -40,6 +44,7 @@ public class ActividadEstilista implements Serializable {
 	private String status;
 	private String startime;
 	private String endtime;
+	private String note;
 	private double precio;
 	private String title;
 	private int turnos;
@@ -157,6 +162,16 @@ public class ActividadEstilista implements Serializable {
 
 	public void setTurnos(int turnos) {
 		this.turnos = turnos;
+	}
+
+
+	public String getNote() {
+		return note;
+	}
+
+
+	public void setNote(String note) {
+		this.note = note;
 	}
 
 }

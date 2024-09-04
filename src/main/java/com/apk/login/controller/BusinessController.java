@@ -68,4 +68,13 @@ public class BusinessController {
     	String token = request.getHeader(ENCABEZADO);
        return businessService.obtenerNegocioPorUsuario(userId,token);
     }
+    
+    
+    @GetMapping("{activityId}")
+    @CrossOrigin(origins = "*", methods = { RequestMethod.GET, RequestMethod.POST })
+   	@ResponseStatus(HttpStatus.CREATED)
+    public ResponseEntity<?> obtenerNegocioParaCalificar(@PathVariable String activityId,HttpServletRequest request) {
+    	String token = request.getHeader(ENCABEZADO);
+       return businessService.obtenerNegocioParaCalificar(activityId,token);
+    }
 }

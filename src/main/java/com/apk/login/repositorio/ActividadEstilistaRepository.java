@@ -19,5 +19,12 @@ public interface ActividadEstilistaRepository extends JpaRepository<ActividadEst
     
     @Query(value="SELECT * FROM actividad_estilista  WHERE userid=:userId and status=:status", nativeQuery=true)
     List<ActividadEstilista> obtenerActividadesEstilista(@Param("userId") String userId, @Param("status") String status);
+    
+    
+    @Query(value="SELECT * FROM actividad_estilista  WHERE userid=:userId", nativeQuery=true)
+    List<ActividadEstilista> obtenerAllActividadesEstilista(@Param("userId") String userId);
+    
+    @Query(value="SELECT * FROM actividad_estilista  WHERE mascotaid=:mascotaId and status=:status", nativeQuery=true)
+    List<ActividadEstilista> obtenerActividadesMascota(@Param("mascotaId") String mascotaId, @Param("status") String status);
 
 }

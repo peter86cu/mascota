@@ -20,6 +20,8 @@ public class Comment implements Serializable {
 	
     @Id
     private String id;
+    
+    private String actividadid;
 
     @ManyToOne(fetch = FetchType.EAGER)  // Cambia a LAZY si prefieres cargar la entidad Business solo cuando se necesite
     @JoinColumn(name = "business_id", nullable = false)  // Usamos @JoinColumn en lugar de @Column
@@ -105,6 +107,14 @@ public class Comment implements Serializable {
 	public Comment() {
 		super();
 		// TODO Auto-generated constructor stub
+	}
+
+	public String getActividadid() {
+		return actividadid;
+	}
+
+	public void setActividadid(String actividadid) {
+		this.actividadid = actividadid;
 	}
 
     

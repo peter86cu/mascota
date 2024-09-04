@@ -54,6 +54,10 @@ public class Mascota implements Serializable{
     @OneToMany(mappedBy = "mascota", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Desparasitacion> desparasitaciones;
     
+    @OneToMany(mappedBy = "mascota", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Event> eventos;
+
+    
 //    @OneToMany(mappedBy = "mascota", cascade = CascadeType.ALL)
 //    private List<PesoMascota> pesoMascota= new ArrayList<>();
 
@@ -62,6 +66,18 @@ public class Mascota implements Serializable{
     }
 
 	
+
+	public List<Event> getEventos() {
+		return eventos;
+	}
+
+
+
+	public void setEventos(List<Event> eventos) {
+		this.eventos = eventos;
+	}
+
+
 
 	public String getMascotaid() {
 		return mascotaid;

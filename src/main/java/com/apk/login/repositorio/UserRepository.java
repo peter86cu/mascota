@@ -26,6 +26,9 @@ public interface UserRepository extends JpaRepository<User, String>{
     @Query(value="SELECT ur.rolid, r.descripcion,u.username, u.phone FROM user u , user_roles ur, roles r WHERE u.userid=ur.userid AND r.id=ur.rolid AND (u.username=:username or u.phone=:phone)", nativeQuery=true)
     List<Object> validarExisteUserPhone(@Param("username") String username, @Param("phone") String phone);
 
+    @Query(value="SELECT * FROM user u WHERE u.username=:username AND u.plataforma!=:plataforma", nativeQuery=true)
+    User findUserExist(@Param("username") String username, @Param("plataforma") String plataforma);
+    
 
     @Transactional
     @Modifying

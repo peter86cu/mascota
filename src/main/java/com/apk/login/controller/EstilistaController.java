@@ -68,12 +68,19 @@ public class EstilistaController {
     @GetMapping("activity-estilista")
     @CrossOrigin(origins = "*", methods = { RequestMethod.GET, RequestMethod.POST })
    	@ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<?> obtenerVacunas(@RequestParam("id") String id,@RequestParam("status") String status,HttpServletRequest request) {
+    public ResponseEntity<?> obtenerActividadesNegocio(@RequestParam("id") String id,@RequestParam("status") String status,HttpServletRequest request) {
     	String token = request.getHeader(ENCABEZADO);
        return estilistaService.obtenerActividad(id,token,status);
     }
     
     
- 
+    @GetMapping("activity-mascota")
+    @CrossOrigin(origins = "*", methods = { RequestMethod.GET, RequestMethod.POST })
+   	@ResponseStatus(HttpStatus.CREATED)
+    public ResponseEntity<?> obtenerActividadesMascota(@RequestParam("id") String id,@RequestParam("status") String status,HttpServletRequest request) {
+    	String token = request.getHeader(ENCABEZADO);
+       return estilistaService.obtenerActividadPorMascota(id,token,status);
+    }
+    
     
 }
