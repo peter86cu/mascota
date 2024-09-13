@@ -3,13 +3,17 @@ package com.apk.login;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import com.apk.login.modelo.User;
+import com.apk.login.service.UserService;
 import com.google.gson.Gson;
 
 import io.jsonwebtoken.security.Keys;
@@ -27,6 +31,8 @@ public class JwtTokenProvider {
 	    @Value("${jwt.expiration}")
 	    private long validityInMilliseconds;
 
+	    @Autowired
+	    private UserService userService;
 	    
 	    public Key key;
 
@@ -76,11 +82,19 @@ public class JwtTokenProvider {
 
 	    public boolean validateToken(String token) {
 	        try {
-	            Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
+	            Jwts.parserBuilder().setSigningKey(secretKey).build().parseClaimsJws(token);
 	            return true;
 	        } catch (Exception e) {
 	            return false;
 	        }
 	    }
 	    
+	    public String getUsername(String token) {
+	        return Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody().getSubject();
+	    }
+	    
+	    public Authentication getAuthentication(String token) {
+	        UserDetails userDetails = userService.loadUserByUsername(getUsername(token));
+	        return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
+	    }
 }

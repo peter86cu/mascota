@@ -2,9 +2,11 @@ package com.apk.login.service;
 
 import java.util.ArrayList;
 import java.util.Base64;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import javax.persistence.Entity;
 
@@ -12,10 +14,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import com.apk.login.JwtTokenProvider;
 import com.apk.login.modelo.Photos;
+import com.apk.login.modelo.User;
+import com.apk.login.modelo.UserAlbumLike;
 import com.apk.login.modelo.Mascota;
 import com.apk.login.modelo.MascotaAlbun;
 import com.apk.login.modelo.MascotaTemporal;
@@ -27,6 +34,9 @@ import com.apk.login.repositorio.MascotaPesoRepository;
 import com.apk.login.repositorio.MascotaVacunaRepository;
 import com.apk.login.repositorio.PerfilMascotaRepository;
 import com.apk.login.repositorio.PhotoAlbumMascotaRepository;
+import com.apk.login.repositorio.UserAlbumLikeRepository;
+import com.apk.login.repositorio.UserRepository;
+import com.apk.login.utils.LikeRequest;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -56,14 +66,20 @@ public class PerfilMascotaService {
 	@Autowired
 	PhotoAlbumMascotaRepository photoAlbumMascotaRepository;
 	
+	@Autowired
+	UserAlbumLikeRepository userAlbumLikeRepository;
+	
 	 @Value("${jwt.secret}")
 	    private String secretKey;
 	 
 	 @Autowired
 	 JwtTokenProvider jwt;
 	 
-	 
+	 @Autowired
+	 UserRepository userRepository;
     
+	 @Autowired
+	  private SimpMessagingTemplate messagingTemplate;
 
    public ResponseEntity<?> obtenerPesoMascota(String mascotaId, String token) {
     	
@@ -496,6 +512,44 @@ public class PerfilMascotaService {
         }
     }
     
+    
+    
+    
+    
+    public ResponseEntity<?> isAlbumLikedByUser(String albumId,  String token, String userId) {
+        try {
+            if (token != null) {
+                Claims claims = Jwts.parser()
+                    .setSigningKey(jwt.key)
+                    .parseClaimsJws(token.replace(PREFIJO_TOKEN, ""))
+                    .getBody();
+
+                Date expiration = claims.getExpiration();
+                if (expiration.before(new Date())) {
+                    return new ResponseEntity<>("Expiró la sesión", HttpStatus.BAD_REQUEST);
+                } else {
+                	
+                	Optional<MascotaAlbun> albumOpt = albumMascotaRepository.findById(albumId);
+
+                    if (!albumOpt.isPresent()) {
+                        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Album not found");
+                    }
+                    User user=userRepository.findById(userId).get();
+                    MascotaAlbun album = albumOpt.get();
+                    Optional<UserAlbumLike> userLikeOpt = userAlbumLikeRepository.findByUserAndAlbum(user, album);
+
+                    boolean isLiked = userLikeOpt.isPresent() && userLikeOpt.get().isLiked();
+
+                    return ResponseEntity.ok(Collections.singletonMap("isLiked", isLiked));
+                }
+            } else {
+                return new ResponseEntity<>("Sin autorización", HttpStatus.UNAUTHORIZED);
+            }
+        } catch (Exception e) {
+            return new ResponseEntity<>("Error al eliminar foto", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    
     public ResponseEntity<?> actualizarAlbumsSeleccionados(String token, List<MascotaAlbun> albums) {
         try {
             // Verificar que el token no sea nulo
@@ -575,6 +629,81 @@ public class PerfilMascotaService {
         } catch (Exception e) {
             return new ResponseEntity<>("Error al actualizar los álbumes", HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+    
+    
+    
+    public ResponseEntity<?> likeOrUnlikeAlbum(@RequestBody LikeRequest likeRequest, String token) {
+    	 try {
+             // Verificar que el token no sea nulo
+             if (token != null) {
+                 // Procesar el token JWT y obtener los detalles del usuario
+                 Claims claims = Jwts.parser()
+                     .setSigningKey(jwt.key)
+                     .parseClaimsJws(token.replace(PREFIJO_TOKEN, ""))
+                     .getBody();
+
+                 // Verificar si el token ha expirado
+                 Date expiration = claims.getExpiration();
+                 if (expiration.before(new Date())) {
+                     return new ResponseEntity<>("Expiró la sesión", HttpStatus.BAD_REQUEST);
+                 } else {
+                	 Optional<MascotaAlbun> albumOpt = albumMascotaRepository.findById(likeRequest.getAlbumId());
+
+                     if (!albumOpt.isPresent()) {
+                         return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Album not found");
+                     }
+
+                     MascotaAlbun album = albumOpt.get();
+
+                     // Buscar si el usuario ya ha dado like al álbum
+                     Optional<UserAlbumLike> userLikeOpt = userAlbumLikeRepository.findByUserAndAlbum(likeRequest.getUser(), album);
+
+                     if (userLikeOpt.isPresent()) {
+                         UserAlbumLike userLike = userLikeOpt.get();
+                         userLike.setLiked(likeRequest.isLiked());
+                         userAlbumLikeRepository.save(userLike);
+                     } else {
+                         // Si es la primera vez que da like, crear un nuevo registro
+                         UserAlbumLike newLike = new UserAlbumLike();
+                         newLike.setUser(likeRequest.getUser());
+                         newLike.setId(UUID.randomUUID().toString());
+                         newLike.setAlbum(album);
+                         newLike.setLiked(likeRequest.isLiked());
+                         userAlbumLikeRepository.save(newLike);
+                     }
+
+                     // Actualizar el contador de likes en el álbum
+                   /*  int likeCount = userAlbumLikeRepository.findLikeCountByAlbum(album);
+                     
+                     int newLike=0;
+                	 if(!likeRequest.isLiked()) {
+                		 newLike= likeCount-likeRequest.getLikeCount(); 
+                	 }else {
+                		 newLike = likeRequest.getLikeCount();
+                	 }*/
+                	 
+                	// albumMascotaRepository.updateAlbumIsLike(albumId, newLike, isLiked);
+                	 
+                     album.setLikeCount(likeRequest.getLikeCount());
+                     
+                  // Enviar la actualización a todas las sesiones conectadas
+                     messagingTemplate.convertAndSend("/topic/album/" + album.getId(), album.getLikeCount());
+
+                     
+                     albumMascotaRepository.save(album);
+
+                     return ResponseEntity.ok("Like updated");
+                 }
+             } else {
+                 return new ResponseEntity<>("Sin autorización", HttpStatus.UNAUTHORIZED);
+             }
+         } catch (Exception e) {
+             return new ResponseEntity<>("Error al actualizar los álbumes", HttpStatus.INTERNAL_SERVER_ERROR);
+         }
+    	
+    	
+    	
     }
     
     /*public MascotaTemporal obtenerMascotaApp(Mascota mascota) {

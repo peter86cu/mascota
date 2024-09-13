@@ -37,7 +37,8 @@ public class Photos implements Serializable {
     @JoinColumn(name = "albumid", nullable = false) // Clave foránea
     @JsonBackReference
     private MascotaAlbun album;
-    
+   	@Column(name="media_type")
+    private String mediaType;
 	
 	public String getPhotoid() {
 		return photoid;
@@ -62,6 +63,12 @@ public class Photos implements Serializable {
 	}
 	public void setAlbum(MascotaAlbun album) {
 		this.album = album;
+	}
+	public String getMediaType() {
+		return mediaType;
+	}
+	public void setMediaType(String mediaType) {
+		this.mediaType = mediaType;
 	}
 	
     

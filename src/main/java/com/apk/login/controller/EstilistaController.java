@@ -1,4 +1,5 @@
 package com.apk.login.controller;
+
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -13,12 +14,14 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.apk.login.modelo.ActividadEstilista;
+import com.apk.login.modelo.Event;
 import com.apk.login.modelo.Mascota;
 import com.apk.login.service.EstilistaService;
 import com.apk.login.service.ParametroService;
@@ -27,60 +30,75 @@ import com.google.gson.Gson;
 
 import org.springframework.http.MediaType;
 
-
 @RestController
 public class EstilistaController {
 
 	public static final String ENCABEZADO = "Authorization";
-	
+
 	public static final String ADD = "All";
+
+	@Autowired
+	EstilistaService estilistaService;
+
+	/*
+	 * @PostMapping public ActividadEstilista createActivity(@RequestBody
+	 * ActividadEstilista activity) { ActividadEstilista savedActivity =
+	 * estilistaService.saveActivity(activity);
+	 * messagingTemplate.convertAndSend("/topic/activities", savedActivity); return
+	 * savedActivity; }
+	 * 
+	 * @GetMapping("/user/{userId}") public List<ActividadEstilista>
+	 * getActivitiesByUserId(@PathVariable String userId) { return
+	 * activityService.getActivitiesByUserId(userId); }
+	 */
+
+	@PostMapping(value = "add-evento", produces = MediaType.APPLICATION_JSON_VALUE)
+	@CrossOrigin(origins = "*", methods = { RequestMethod.GET, RequestMethod.POST })
+	@ResponseStatus(HttpStatus.CREATED)
+	public ResponseEntity<?> addActividad(@RequestBody String data, HttpServletRequest request) {
+		String token = request.getHeader(ENCABEZADO);
+		boolean all = Boolean.parseBoolean(request.getHeader(ADD));
+		if (!all)
+			return estilistaService.guardarActividad(data, token);
+		return estilistaService.guardarActividadAll(data, token);
+
+	}
+
+	@PostMapping(value = "event-update", produces = MediaType.APPLICATION_JSON_VALUE)
+	@CrossOrigin(origins = "*", methods = { RequestMethod.GET, RequestMethod.POST })
+	@ResponseStatus(HttpStatus.CREATED)
+	public ResponseEntity<?> updateEventsLeido(@RequestBody Event data, @RequestHeader("Authorization") String token) {
+		
+		return estilistaService.guardarEventoLeido(data, token);
+
+	}
 	
-	 @Autowired
-	 EstilistaService estilistaService;
-   
-	
-	 
-	/* @PostMapping
-	    public ActividadEstilista createActivity(@RequestBody ActividadEstilista activity) {
-		 ActividadEstilista savedActivity = estilistaService.saveActivity(activity);
-	        messagingTemplate.convertAndSend("/topic/activities", savedActivity);
-	        return savedActivity;
-	    }
-	 
-	 @GetMapping("/user/{userId}")
-	    public List<ActividadEstilista> getActivitiesByUserId(@PathVariable String userId) {
-	        return activityService.getActivitiesByUserId(userId);
-	    }*/
-   
-	 @PostMapping(value="add-evento",produces=MediaType.APPLICATION_JSON_VALUE)
-	    @CrossOrigin(origins = "*", methods = { RequestMethod.GET, RequestMethod.POST })
-		@ResponseStatus(HttpStatus.CREATED)
-	    public ResponseEntity<?> addActividad(@RequestBody String data, HttpServletRequest request) {
-	    	String token = request.getHeader(ENCABEZADO);
-	    	boolean all = Boolean.parseBoolean(request.getHeader(ADD)) ;
-	    	if(!all)
-	    	return estilistaService.guardarActividad(data, token);
-	    	return estilistaService.guardarActividadAll(data, token);
-	       
-	    }
-	 
-	 
-    @GetMapping("activity-estilista")
-    @CrossOrigin(origins = "*", methods = { RequestMethod.GET, RequestMethod.POST })
-   	@ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<?> obtenerActividadesNegocio(@RequestParam("id") String id,@RequestParam("status") String status,HttpServletRequest request) {
-    	String token = request.getHeader(ENCABEZADO);
-       return estilistaService.obtenerActividad(id,token,status);
-    }
-    
-    
-    @GetMapping("activity-mascota")
-    @CrossOrigin(origins = "*", methods = { RequestMethod.GET, RequestMethod.POST })
-   	@ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<?> obtenerActividadesMascota(@RequestParam("id") String id,@RequestParam("status") String status,HttpServletRequest request) {
-    	String token = request.getHeader(ENCABEZADO);
-       return estilistaService.obtenerActividadPorMascota(id,token,status);
-    }
-    
-    
+	@GetMapping(value = "/events/{petId}", produces = MediaType.APPLICATION_JSON_VALUE)
+	@CrossOrigin(origins = "*", methods = { RequestMethod.GET, RequestMethod.POST })
+	@ResponseStatus(HttpStatus.CREATED)
+	public ResponseEntity<?> obtenerEventosMascota(@PathVariable String petId,
+			@RequestHeader("Authorization") String token) {
+		// String token = request.getHeader(ENCABEZADO);
+		return estilistaService.obtenerEventsByPet(petId, token);
+
+	}
+
+	@GetMapping("activity-estilista")
+	@CrossOrigin(origins = "*", methods = { RequestMethod.GET, RequestMethod.POST })
+	@ResponseStatus(HttpStatus.CREATED)
+	public ResponseEntity<?> obtenerActividadesNegocio(@RequestParam("id") String id,
+			@RequestParam("status") String status, HttpServletRequest request) {
+		String token = request.getHeader(ENCABEZADO);
+		return estilistaService.obtenerActividad(id, token, status);
+	}
+
+	@GetMapping("activity-mascota")
+	@CrossOrigin(origins = "*", methods = { RequestMethod.GET, RequestMethod.POST })
+	@ResponseStatus(HttpStatus.CREATED)
+	public ResponseEntity<?> obtenerActividadesMascota(@RequestParam("id") String id,
+			@RequestParam("status") String status, HttpServletRequest request) {
+		String token = request.getHeader(ENCABEZADO);
+		return estilistaService.obtenerActividadPorMascota(id, token, status);
+	}
+
 }

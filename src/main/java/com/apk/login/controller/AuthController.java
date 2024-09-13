@@ -2,6 +2,7 @@ package com.apk.login.controller;
 
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -20,8 +21,10 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -38,6 +41,7 @@ import com.apk.login.modelo.User;
 import com.apk.login.service.UserService;
 import com.google.gson.Gson;
 
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 
@@ -175,6 +179,37 @@ public class AuthController {
 	    @PostMapping("login-google")
 	    public ResponseEntity<?>  generateTokenGoogle(@RequestParam("username") String username) {
 	       return  ResponseEntity.ok(new Gson().toJson(jwtTokenProvider.createToken(username)) ); 
+	    }
+	    
+	    @GetMapping("check-token")
+	    public ResponseEntity<?> checkToken(@RequestHeader("Authorization") String token){
+	    	
+	    	if (token != null) {
+	    		java.util.Date fecha = new Date();
+
+	  			// Se procesa el token y se recupera el usuario y los roles.
+	  			Claims claims = Jwts.parser()
+	                      .setSigningKey(jwtTokenProvider.key)
+	                      .parseClaimsJws(token.replace("Bearer ", ""))
+	                      .getBody();
+					//Claims claims = jwt.getUsernameFromToken(token);
+					Date authorities = claims.getExpiration();
+	  			
+					if (authorities.before(fecha)) {					
+						return ResponseEntity.ok(Collections.singletonMap("valido", false) ); 
+					} else {
+						
+		    			return ResponseEntity.ok(Collections.singletonMap("valido", true));
+		        		
+					}
+	  			
+	  		}else {
+	  			return new ResponseEntity<String>(new Gson().toJson ("Sin autorización"), HttpStatus.UNAUTHORIZED);
+	  		}
+	    	
+	    	
+	    	
+
 	    }
 	  //	    
 //	    @PostMapping("obtener-user")

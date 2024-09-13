@@ -6,6 +6,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,7 +23,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.apk.login.modelo.Mascota;
 import com.apk.login.modelo.MascotaAlbun;
+import com.apk.login.modelo.User;
 import com.apk.login.service.PerfilMascotaService;
+import com.apk.login.utils.LikeRequest;
 import com.google.gson.Gson;
 
 import org.springframework.http.MediaType;
@@ -48,6 +51,15 @@ public class PerfilMascotaController {
     public ResponseEntity<?> obtenerAlbumMascota(@RequestParam("petId") String id,HttpServletRequest request) {
     	String token = request.getHeader(ENCABEZADO);
        return perfilMascotaService.obtenerlAlbum(id, token);
+    }
+    
+    @GetMapping(value="albums/{albumId}/isLiked" ,produces=MediaType.APPLICATION_JSON_VALUE)
+    @CrossOrigin(origins = "*", methods = { RequestMethod.GET, RequestMethod.POST })
+	@ResponseStatus(HttpStatus.CREATED)
+    public ResponseEntity<?> isAlbumLikedByUser(@PathVariable String albumId, @RequestHeader("Authorization") String token, @RequestHeader("userId") String userId) {
+    	//String token = request.getHeader(ENCABEZADO);
+    	return perfilMascotaService.isAlbumLikedByUser(albumId,token, userId);
+       
     }
     
     @GetMapping("albums-shared")
@@ -90,6 +102,8 @@ public class PerfilMascotaController {
     	return perfilMascotaService.eliminarFotoDelAlbum(albumId,photoId, token);
        
     }
+    
+   
 
     @DeleteMapping(value="/albums/{albumId}" ,produces=MediaType.APPLICATION_JSON_VALUE)
     @CrossOrigin(origins = "*", methods = { RequestMethod.GET, RequestMethod.POST })
@@ -100,12 +114,21 @@ public class PerfilMascotaController {
        
     }
     
-    @PostMapping("/albums/likes")
+   /* @PostMapping("/albums/likes")
     @CrossOrigin(origins = "*", methods = { RequestMethod.GET, RequestMethod.POST })
 	@ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<?> actualizarAlbumsLike(@RequestHeader("Authorization") String token,@RequestBody String datos) {
         
         return perfilMascotaService.actualizarAlbumsLike( token,datos);
+    }*/
+    
+    
+    @PostMapping("/albums/likes")
+    @CrossOrigin(origins = "*", methods = { RequestMethod.GET, RequestMethod.POST })
+	@ResponseStatus(HttpStatus.CREATED)
+    public ResponseEntity<?> actualizarAlbumsLikeNew(@RequestBody LikeRequest likeRequest, @RequestHeader("Authorization") String token) {
+        
+        return perfilMascotaService.likeOrUnlikeAlbum(likeRequest,token);
     }
     
     
