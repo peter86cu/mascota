@@ -18,6 +18,7 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.client.RestTemplate;
 
 import com.apk.login.JwtTokenProvider;
 import com.apk.login.modelo.Photos;
@@ -37,6 +38,7 @@ import com.apk.login.repositorio.PhotoAlbumMascotaRepository;
 import com.apk.login.repositorio.UserAlbumLikeRepository;
 import com.apk.login.repositorio.UserRepository;
 import com.apk.login.utils.LikeRequest;
+import com.apk.login.utils.NotificationMessage;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -78,8 +80,11 @@ public class PerfilMascotaService {
 	 @Autowired
 	 UserRepository userRepository;
     
-	 @Autowired
-	  private SimpMessagingTemplate messagingTemplate;
+	 /*@Autowired
+	  private SimpMessagingTemplate messagingTemplate;*/
+	 
+	    private final static RestTemplate restTemplate= new RestTemplate();
+
 
    public ResponseEntity<?> obtenerPesoMascota(String mascotaId, String token) {
     	
@@ -688,8 +693,14 @@ public class PerfilMascotaService {
                      album.setLikeCount(likeRequest.getLikeCount());
                      
                   // Enviar la actualización a todas las sesiones conectadas
-                     messagingTemplate.convertAndSend("/topic/album/" + album.getId(), album.getLikeCount());
+                     String websocketServerUrl = "http://localhost:8081/api/notifications/send";
 
+         			
+         			NotificationMessage message = new NotificationMessage();
+         			message.setType("/topic/album/"+ album.getId());
+         			message.setContent(String.valueOf( album.getLikeCount()));
+                     //messagingTemplate.convertAndSend("/topic/album/" + album.getId(), album.getLikeCount());
+         			restTemplate.postForObject(websocketServerUrl, message, Void.class);
                      
                      albumMascotaRepository.save(album);
 
@@ -705,6 +716,9 @@ public class PerfilMascotaService {
     	
     	
     }
+    
+   
+    
     
     /*public MascotaTemporal obtenerMascotaApp(Mascota mascota) {
     	MascotaTemporal response= new MascotaTemporal();

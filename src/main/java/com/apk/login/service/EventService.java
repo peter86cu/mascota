@@ -7,12 +7,17 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestTemplate;
 
 import com.apk.login.JwtTokenProvider;
 import com.apk.login.modelo.Event;
 import com.apk.login.modelo.Mascota;
 import com.apk.login.repositorio.EventRepository;
 import com.apk.login.repositorio.PerfilMascotaRepository;
+import com.apk.login.utils.NotificationMessage;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.google.gson.Gson;
 
 import io.jsonwebtoken.Claims;
@@ -31,8 +36,7 @@ public class EventService {
     @Autowired
     private EventRepository eventRepository;
 
-    @Autowired
-    private SimpMessagingTemplate messagingTemplate;
+   
     
     public static final String PREFIJO_TOKEN = "Bearer ";
 	java.util.Date fecha = new Date();
@@ -42,6 +46,9 @@ public class EventService {
 
 	 @Autowired
 		PerfilMascotaRepository perfilMascotaRepository;
+	 
+	    private final static RestTemplate restTemplate= new RestTemplate();
+
 	 
     // Store the ID of the last known event to detect new ones
     private Long lastEventId = 0L;
@@ -55,7 +62,7 @@ public class EventService {
     // This method will be called every 5 seconds to check for new events
     @Scheduled(fixedRate = 5000)
     @Transactional
-    public void checkForNewEvents() {
+    public void checkForNewEvents() throws JsonProcessingException {
         // Use the updated method to find new or updated events
         List<Event> newOrUpdatedEvents = eventRepository.findNewOrModifiedEvents(lastEventId, lastCheckedTime);
 
@@ -64,8 +71,21 @@ public class EventService {
             lastEventId = newOrUpdatedEvents.get(newOrUpdatedEvents.size() - 1).getId();
             lastCheckedTime = LocalDateTime.now(ZoneOffset.UTC).truncatedTo(ChronoUnit.SECONDS); // Ensure it is in UTC and truncated
 
+           
+            String websocketServerUrl = "http://localhost:8081/api/notifications/send";
+            ObjectMapper objectMapper = new ObjectMapper();
+            objectMapper.registerModule(new JavaTimeModule());
+
+            String json = objectMapper.writeValueAsString(newOrUpdatedEvents);
+			
+			NotificationMessage message = new NotificationMessage();
+			message.setType("/topic/events");
+			message.setContent(json );
+            //messagingTemplate.convertAndSend("/topic/album/" + album.getId(), album.getLikeCount());
+			restTemplate.postForObject(websocketServerUrl, message, Void.class);
+			
             // Send the new or updated events to the WebSocket topic
-            messagingTemplate.convertAndSend("/topic/events", newOrUpdatedEvents);
+            //messagingTemplate.convertAndSend("/topic/events", newOrUpdatedEvents);
         }
     }
     
