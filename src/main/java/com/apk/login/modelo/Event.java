@@ -1,6 +1,7 @@
 package com.apk.login.modelo;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 import javax.persistence.Entity;
@@ -9,6 +10,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.PreUpdate;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -41,7 +43,14 @@ public class Event implements Serializable {
     @Temporal(TemporalType.DATE)
    	@Column(name="fecha")
     private Date fecha;
+   	@Column(name="last_modified")
+    private LocalDateTime lastModified;
     
+    @PreUpdate
+    public void preUpdate() {
+        this.lastModified = LocalDateTime.now();
+    }
+
     public Date getFecha() {
 		return fecha;
 	}
@@ -145,5 +154,14 @@ public class Event implements Serializable {
 	public void setLeido(boolean leido) {
 		this.leido = leido;
 	}
-    
+
+	public LocalDateTime getLastModified() {
+		return lastModified;
+	}
+
+	public void setLastModified(LocalDateTime lastModified) {
+		this.lastModified = lastModified;
+	}
+
+	
 }

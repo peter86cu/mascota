@@ -20,7 +20,6 @@ import com.apk.login.modelo.Mascota;
 import com.apk.login.modelo.PesoMascota;
 import com.apk.login.modelo.Vacuna;
 import com.apk.login.repositorio.ActividadEstilistaRepository;
-import com.apk.login.repositorio.EventsRepository;
 import com.apk.login.repositorio.MascotaPesoRepository;
 import com.apk.login.repositorio.MascotaVacunaRepository;
 import com.apk.login.repositorio.PerfilMascotaRepository;
@@ -41,9 +40,11 @@ public class EstilistaService {
 	
 	@Autowired
     ActividadEstilistaRepository actividadRepository;
-
+	
 	@Autowired
-	EventsRepository eventsRepository;
+	PerfilMascotaRepository perfilMascotaRepository;
+
+	
 	
 	 @Value("${jwt.secret}")
 	    private String secretKey;
@@ -92,66 +93,9 @@ public class EstilistaService {
     }
   
   
-  public ResponseEntity<?> guardarEventoLeido(Event evento, String token){
-  	try {
-  		if (token != null) {
-  			
-  			// Se procesa el token y se recupera el usuario y los roles.
-  			Claims claims = Jwts.parser()
-                      .setSigningKey(jwt.key)
-                      .parseClaimsJws(token.replace(PREFIJO_TOKEN, ""))
-                      .getBody();
-				//Claims claims = jwt.getUsernameFromToken(token);
-				Date authorities = claims.getExpiration();
-  			
-				if (authorities.before(fecha)) {					
-					return new ResponseEntity<String>("Expiró la sección", HttpStatus.BAD_REQUEST);
-				} else {
-					
-	    			return ResponseEntity.ok(eventsRepository.save(evento));
-	        		
-				}
-  			
-  		}else {
-  			return new ResponseEntity<String>(new Gson().toJson ("Sin autorización"), HttpStatus.UNAUTHORIZED);
-  		}
-  		  
-  		
-  		
-  		//return new ResponseEntity<String>(new Gson().toJson ("Ocurrio un error. Intente de nuevo")  , HttpStatus.NOT_ACCEPTABLE);
-		} catch (Exception e) {
-			return new ResponseEntity<String>(new Gson().toJson ("Ocurrio un error. Intente de nuevo")  , HttpStatus.NOT_ACCEPTABLE);	
-		}
-  }
+ 
   
-  public ResponseEntity<?> obtenerEventsByPet( String petId, String token) {
-      try {
-          if (token != null) {
-              Claims claims = Jwts.parser()
-                  .setSigningKey(jwt.key)
-                  .parseClaimsJws(token.replace(PREFIJO_TOKEN, ""))
-                  .getBody();
-
-              Date expiration = claims.getExpiration();
-              if (expiration.before(new Date())) {
-                  return new ResponseEntity<>("Expiró la sesión", HttpStatus.BAD_REQUEST);
-              } else {
-              	List<Event> album = eventsRepository.obtenerEventsMascota(petId);
-              		    
-                  if (!album.isEmpty()) {
-                      return ResponseEntity.ok(album);
-                  } else {
-                      // Devuelve 404 sin cambiar el tipo de retorno
-                      return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-                  }
-              }
-          } else {
-              return new ResponseEntity<>("Sin autorización", HttpStatus.UNAUTHORIZED);
-          }
-      } catch (Exception e) {
-          return new ResponseEntity<>("Error al eliminar foto", HttpStatus.INTERNAL_SERVER_ERROR);
-      }
-  }
+  
   
   
   public ResponseEntity<String> guardarActividadAll(String mascota, String token){

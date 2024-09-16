@@ -43,6 +43,7 @@ public class User implements Serializable {
     @Temporal(TemporalType.DATE)
 	private Date deletedate;
 
+	private String documento;
 	
 	@OneToMany(mappedBy = "usuario", fetch = FetchType.LAZY)
 	private List<Mascota> mascotas;
@@ -149,6 +150,14 @@ public class User implements Serializable {
 
 	public void setPhoto(String photo) {
 		this.photo = photo;
+	}
+
+	public String getDocumento() {
+		return documento;
+	}
+
+	public void setDocumento(String documento) {
+		this.documento = documento;
 	}
 
 	

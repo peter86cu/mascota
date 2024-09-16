@@ -1,11 +1,12 @@
 package com.apk.login.modelo;
 
-
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.DiscriminatorColumn;
 import javax.persistence.DiscriminatorType;
 import javax.persistence.Entity;
@@ -17,79 +18,80 @@ import javax.persistence.InheritanceType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 @Table(name = "mascota")
-public class Mascota implements Serializable{
-	
+public class Mascota implements Serializable {
+
 	private static final long serialVersionUID = 1L;
 
 	@Id
-   // @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private String mascotaid;
-    private String nombre;
-    private String especie;
-    private String raza;
-    private int edad;
-    private String genero;
-    private String color;
-    private String tamano;
-    private String personalidad;
-    private String historial_medico;
-    private String necesidades_especiales;
-    private String comportamiento;
-    private String fechanacimiento;
-    private String fotos;
-    @JsonIgnore
-    @ManyToOne
-    @JoinColumn(name = "usuarioid") 
-    private User usuario;
-    @OneToMany(mappedBy = "mascota", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Vacuna> vacunas;
+	// @GeneratedValue(strategy = GenerationType.IDENTITY)
+	private String mascotaid;
+	private String nombre;
+	private String especie;
+	private String raza;
+	private int edad;
+	private String genero;
+	private String color;
+	private String tamano;
+	private String personalidad;
+	private String historial_medico;
+	private String necesidades_especiales;
+	private String comportamiento;
+	private String fechanacimiento;
+	private String fotos;
+	private String microchip;
+	@Temporal(TemporalType.DATE)
+	@Column(name = "fecha_registro_chip")
+	private Date fechaRegistroChip;
 
-    
-    @OneToMany(mappedBy = "mascota", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Desparasitacion> desparasitaciones;
-    
-    @OneToMany(mappedBy = "mascota", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Event> eventos;
+	private String castrado;
+	
 
-    
+	@JsonIgnore
+	@ManyToOne
+	@JoinColumn(name = "usuarioid")
+	private User usuario;
+	@OneToMany(mappedBy = "mascota", cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<Vacuna> vacunas;
+
+	@OneToMany(mappedBy = "mascota", cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<Desparasitacion> desparasitaciones;
+
+	@OneToMany(mappedBy = "mascota", cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<Event> eventos;
+
+	@OneToOne(mappedBy = "mascota", cascade = CascadeType.ALL, orphanRemoval = true)
+	MascotaAddress direccion;
 //    @OneToMany(mappedBy = "mascota", cascade = CascadeType.ALL)
 //    private List<PesoMascota> pesoMascota= new ArrayList<>();
 
-    // Constructor vacío
-    public Mascota() {
-    }
-
-	
+	// Constructor vacío
+	public Mascota() {
+	}
 
 	public List<Event> getEventos() {
 		return eventos;
 	}
 
-
-
 	public void setEventos(List<Event> eventos) {
 		this.eventos = eventos;
 	}
-
-
 
 	public String getMascotaid() {
 		return mascotaid;
 	}
 
-
-
 	public void setMascotaid(String mascotaid) {
 		this.mascotaid = mascotaid;
 	}
-
-
 
 	public String getNombre() {
 		return nombre;
@@ -139,9 +141,6 @@ public class Mascota implements Serializable{
 		this.color = color;
 	}
 
-	
-	
-
 	public String getPersonalidad() {
 		return personalidad;
 	}
@@ -182,7 +181,6 @@ public class Mascota implements Serializable{
 		this.fotos = fotos;
 	}
 
-	
 	@JsonIgnore
 	public User getUsuario() {
 		return usuario;
@@ -192,7 +190,6 @@ public class Mascota implements Serializable{
 		this.usuario = usuario;
 	}
 
-	
 	public List<Vacuna> getVacunas() {
 		return vacunas;
 	}
@@ -200,7 +197,7 @@ public class Mascota implements Serializable{
 	public void setVacunas(List<Vacuna> vacunas) {
 		this.vacunas = vacunas;
 	}
-	
+
 	public List<Desparasitacion> getDesparasitaciones() {
 		return desparasitaciones;
 	}
@@ -212,7 +209,22 @@ public class Mascota implements Serializable{
 	public String getTamano() {
 		return tamano;
 	}
+	
+	public String getMicrochip() {
+		return microchip;
+	}
 
+	public void setMicrochip(String microchip) {
+		this.microchip = microchip;
+	}
+
+	public Date getFechaRegistroChip() {
+		return fechaRegistroChip;
+	}
+
+	public void setFechaRegistroChip(Date fechaRegistroChip) {
+		this.fechaRegistroChip = fechaRegistroChip;
+	}
 
 //	public List<PesoMascota> getPesoMascota() {
 //		return pesoMascota;
@@ -224,24 +236,32 @@ public class Mascota implements Serializable{
 //		this.pesoMascota = pesoMascota;
 //	}
 
-
-
 	public void setTamano(String tamano) {
 		this.tamano = tamano;
 	}
-
-
 
 	public String getFechanacimiento() {
 		return fechanacimiento;
 	}
 
-
-
 	public void setFechanacimiento(String fechanacimiento) {
 		this.fechanacimiento = fechanacimiento;
 	}
-    
-	
-    
+
+	public MascotaAddress getDireccion() {
+		return direccion;
+	}
+
+	public void setDireccion(MascotaAddress direccion) {
+		this.direccion = direccion;
+	}
+
+	public String getCastrado() {
+		return castrado;
+	}
+
+	public void setCastrado(String castrado) {
+		this.castrado = castrado;
+	}
+
 }
