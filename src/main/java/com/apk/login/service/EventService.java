@@ -72,7 +72,7 @@ public class EventService {
             lastCheckedTime = LocalDateTime.now(ZoneOffset.UTC).truncatedTo(ChronoUnit.SECONDS); // Ensure it is in UTC and truncated
 
            
-            String websocketServerUrl = "http://localhost:8081/api/notifications/send";
+            String websocketServerUrl = "https://websocket-spring.web.elasticloud.uy/api/notifications/send";
             ObjectMapper objectMapper = new ObjectMapper();
             objectMapper.registerModule(new JavaTimeModule());
 

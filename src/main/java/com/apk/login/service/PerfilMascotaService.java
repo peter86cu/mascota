@@ -693,7 +693,7 @@ public class PerfilMascotaService {
                      album.setLikeCount(likeRequest.getLikeCount());
                      
                   // Enviar la actualización a todas las sesiones conectadas
-                     String websocketServerUrl = "http://localhost:8081/api/notifications/send";
+                     String websocketServerUrl = "https://websocket-spring.web.elasticloud.uy/api/notifications/send";
 
          			
          			NotificationMessage message = new NotificationMessage();
